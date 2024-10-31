@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home - Sistema de Estoque</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="assets/styles.css">
+    <link rel="stylesheet" href="../assets/styles.css">
 </head>
 <body>
     <!-- Navegação -->
@@ -24,10 +24,10 @@
                         <a class="nav-link" href="cadastro_estoque.php">Cadastro de Estoque</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="consulta_estoque.php">Consulta Estoque</a>
+                        <a class="nav-link" href="consulta_deposito.php">Consulta Estoque</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="relatorios.html">Relatórios</a>
+                        <a class="nav-link" href="relatorio.php">Relatórios</a>
                     </li>
                    
                 </ul>
@@ -63,10 +63,10 @@
         </div>
     </section>
 
-    <!-- Rodapé -->
+    <!-- Rodapé
     <footer class="bg-dark text-white text-center py-4">
         <p>&copy; 2024 P.E.M Tech. Todos os direitos reservados.</p>
-    </footer>
+    </footer> -->
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>

@@ -18,17 +18,6 @@ h1 {
     max-width: 800px;
 }
 
-/* Layout em duas colunas */
-form {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-}
-
-form .col-12 {
-    grid-column: span 2;
-}
-
 /* Estilos do botão Voltar */
 .btn-secondary {
     background-color: #6c757d;
@@ -94,11 +83,4 @@ form .col-12 {
     color: #721c24;
     background-color: #f8d7da;
     border-color: #f5c6cb;
-}
-
-/* Responsividade */
-@media (max-width: 768px) {
-    form {
-        grid-template-columns: 1fr;
-    }
 }
