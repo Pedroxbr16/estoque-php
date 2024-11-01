@@ -1,9 +1,9 @@
 <?php
 // Configurações do banco de dados
-$host = 'localhost';       // Nome do servidor de banco de dados
-$dbname = 'nome_do_banco';  // Nome do banco de dados
-$username = 'usuario';      // Nome de usuário do banco de dados
-$password = 'senha';        // Senha do banco de dados
+$host = '127.0.0.1';       // Nome do servidor de banco de dados
+$dbname = 'clinica';  // Nome do banco de dados
+$username = 'root';      // Nome de usuário do banco de dados
+$password = '';        // Senha do banco de dados
 
 // Função para retornar a conexão ao banco de dados
 function getConnection() {

@@ -8,7 +8,8 @@
     <link rel="stylesheet" href="assets/css/index.css">
 </head>
 <body>
-    
+    ]
+
 
 <div class="container">
         <div class="row justify-content-center">
@@ -24,10 +25,10 @@
                             <label for="password" class="form-label">Senha:</label>
                             <input type="password" class="form-control" id="password" placeholder="Digite sua senha" required>
                         </div>
-                        <button type="submit" class="btn btn-primary w-100">Entrar</button>
+                        <button type="submit-login" class="btn btn-primary w-100">Entrar</button>
                     </form>
                     <p class="text-center mt-3">Esqueceu sua senha? <a href="#">Recuperar</a></p>
-                    <p class="text-center mt-2">Não tem uma conta? <a href="#">Cadastre-se</a></p>
+                    <p class="text-center mt-2">Não tem uma conta? <a href="front/cadastra.php">Cadastre-se</a></p>
                 </div>
             </div>
         </div>
