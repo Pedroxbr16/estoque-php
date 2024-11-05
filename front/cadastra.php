@@ -2,6 +2,7 @@
 <!DOCTYPE html>
 <html lang="en-US">
 <head>
+    
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name='viewport' content='width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no'>
@@ -90,6 +91,7 @@
     </style>
     <style type="text/css">
     </style>
+    <link rel="stylesheet" href="../assets/registro.css">
 
     <link rel='stylesheet' href='https://themes.getbootstrap.com/wp-content/themes/bootstrap-marketplace/style.css?ver=1590611604' />
 </head>
@@ -109,41 +111,54 @@
                  
 
                         <div id="signup_div_wrapper">
-                            <img class="img-fluid mx-auto d-block mb-3" src="https://themes.getbootstrap.com/wp-content/themes/bootstrap-marketplace/assets/images/elements/bootstrap-logo.svg" alt="">
+                            <img class="img-fluid mx-auto d-block mb-3 w-50" src="../assets/images/188232663_309321220664657_8260538564518198924_n.jpg" alt="">
                             <h1 class="mb-1 text-center">Cadastre-se</h1>
-                            
+                            <?php
+// Verificar se há um erro e exibir a mensagem correspondente
+if (isset($_GET['error']) && $_GET['error'] == 'email_exists') {
+    echo "<p style='color: red;'>Erro: Este email já está em uso. Por favor, use outro email.</p>";
+}
+?>
 
+<form method="post" action="../back/usuariocontroller.php" class="register">
 
-                            <form method="post" action="../back/usuariocontroller.php" class="register">
+    <p class="woocommerce-FormRow woocommerce-FormRow--first form-row form-row-first">
+        <label for="reg_sr_firstname">Primeiro nome <span class="required">*</span></label>
+        <input type="text" class="woocommerce-Input woocommerce-Input--text input-text" name="sr_firstname" id="reg_sr_firstname" value="" required/>
+    </p>
 
+    <p class="woocommerce-FormRow woocommerce-FormRow--last form-row form-row-last">
+        <label for="reg_sr_lastname">Sobrenome <span class="required">*</span></label>
+        <input type="text" class="woocommerce-Input woocommerce-Input--text input-text" name="sr_lastname" id="reg_sr_lastname" value="" required />
+    </p>
 
+    <p class="woocommerce-FormRow woocommerce-FormRow--last form-row form-row-wide">
+        <label for="reg_sr_funcao">Função <span class="required">*</span></label>
+        <select class="woocommerce-Input woocommerce-Input--text input-text" name="sr_funcao" id="reg_sr_funcao" required>
+            <option value="">Selecione uma função</option>
+            <option value="Venda">Venda</option>
+            <option value="Estoque">Estoque</option>
+        </select>
+    </p>
 
-                                <p class="woocommerce-FormRow woocommerce-FormRow--first form-row form-row-first">
-                                    <label for="reg_sr_firstname">Primeiro nome <span class="required">*</span></label>
-                                    <input type="text" class="woocommerce-Input woocommerce-Input--text input-text" name="sr_firstname" id="reg_sr_firstname" value=""  required/>
-                                </p>
+    <p class="woocommerce-form-row woocommerce-form-row--wide form-row form-row-wide">
+        <label for="reg_email">Email <span class="required">*</span></label>
+        <input type="email" class="woocommerce-Input woocommerce-Input--text input-text" name="email" id="reg_email" value="" required/>
+    </p>
 
-                                <p class="woocommerce-FormRow woocommerce-FormRow--last form-row form-row-last">
-                                    <label for="reg_sr_lastname">Sobrenome <span class="required">*</span></label>
-                                    <input type="text" class="woocommerce-Input woocommerce-Input--text input-text" name="sr_lastname" id="reg_sr_lastname" value=""  required />
-                                </p>
+    <p class="woocommerce-form-row woocommerce-form-row--wide form-row form-row-wide">
+        <label for="reg_password">Senha <span class="required">*</span></label>
+        <input type="password" class="woocommerce-Input woocommerce-Input--text input-text" name="password" id="reg_password" required/>
+    </p>
 
+    <p class="woocomerce-FormRow form-row">
+        <input type="hidden" id="woocommerce-register-nonce" name="woocommerce-register-nonce" value="91cc34b8ea" />
+        <input type="hidden" name="_wp_http_referer" value="/my-account/" />
+        <input type="submit" class="btn btn-brand btn-block btn-lg mb-4 mt-3" style="margin:0;" name="register" value="Sign Up" />
+    </p>
 
-                                <p class="woocommerce-form-row woocommerce-form-row--wide form-row form-row-wide">
-                                    <label for="reg_email">Email  <span class="required">*</span></label>
-                                    <input type="email" class="woocommerce-Input woocommerce-Input--text input-text" name="email" id="reg_email" value="" />
-                                </p>
+</form>
 
-
-                                <p class="woocommerce-form-row woocommerce-form-row--wide form-row form-row-wide">
-                                    <label for="reg_password">Senha <span class="required">*</span></label>
-                                    <input type="password" class="woocommerce-Input woocommerce-Input--text input-text" name="password" id="reg_password" />
-                                </p>
-                     
-                                <p class="woocomerce-FormRow form-row">
-                                    <input type="hidden" id="woocommerce-register-nonce" name="woocommerce-register-nonce" value="91cc34b8ea" /><input type="hidden" name="_wp_http_referer" value="/my-account/" />            <input type="submit" class="btn btn-brand btn-block btn-lg mb-4 mt-3" style="margin:0;" name="register" value="Sign Up" />
-                                </p>
-                            </form>
                         </div>
                     </div>
                 </div>

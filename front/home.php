@@ -34,13 +34,23 @@
             </div>
         </div>
     </nav>
+    <?php
+if (isset($_GET['status'])) {
+    if ($_GET['status'] == 'success') {
+        echo "<script>alert('Material cadastrado com sucesso!');</script>";
+    } elseif ($_GET['status'] == 'error') {
+        $message = isset($_GET['message']) ? urldecode($_GET['message']) : 'Erro ao cadastrar material.';
+        echo "<script>alert('Erro: " . htmlspecialchars($message) . "');</script>";
+    }
+}
+?>
 
     <!-- Seção principal -->
     <header class="bg-light text-center py-5">
         <div class="container">
             <h1 class="display-4">Bem-vindo ao Sistema de Estoque</h1>
             <p class="lead">Gerencie facilmente o seu estoque, cadastre materiais e acompanhe relatórios de desempenho.</p>
-            <a href="cadastro.html" class="btn btn-primary btn-lg mt-3">Cadastrar Material</a>
+            <a href="cadastro_estoque.php" class="btn btn-primary btn-lg mt-3">Cadastrar Material</a>
             <a href="relatorios.html" class="btn btn-outline-secondary btn-lg mt-3">Visualizar Relatórios</a>
         </div>
     </header>

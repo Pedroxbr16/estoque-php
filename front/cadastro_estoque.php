@@ -17,7 +17,7 @@
         </div>
 
         <!-- Formulário para cadastro de estoque -->
-        <form action="back/estoqueController.php" method="POST" class="row g-3">
+        <form action="../back/estoqueController.php"  method="POST" class="row g-3">
             <div class="col-md-6">
                 <label for="descricao" class="form-label">Descrição do Material:</label>
                 <input type="text" name="descricao" class="form-control" id="descricao" required>

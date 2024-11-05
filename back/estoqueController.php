@@ -1,49 +1,78 @@
 <?php
 include('db.php');
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 
 class EstoqueController {
-    public function cadastrarMaterial($descricao, $unidade, $quantidade, $deposito, $estoque_minimo, $estoque_seguranca, $tipo_material) {
-        $conn = getConnection();
-        $sql = "INSERT INTO estoque (descricao, unidade_medida, quantidade, deposito, estoque_minimo, estoque_seguranca, tipo_material) 
-                VALUES (?, ?, ?, ?, ?, ?, ?)";
-        $stmt = $conn->prepare($sql);
-        $stmt->execute([$descricao, $unidade, $quantidade, $deposito, $estoque_minimo, $estoque_seguranca, $tipo_material]);
-    }
+    public function cadastrarMaterial($descricao, $unidade, $quantidade, $deposito, $estoque_minimo, $estoque_seguranca, $tipo_material, $segmento ) {
+        try {
+            $conn = getConnection();
+            $sql = "INSERT INTO estoque (descricao, unidade_medida, quantidade, deposito, estoque_minimo, estoque_seguranca, tipo_material, segmento ) 
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+            $stmt = $conn->prepare($sql);
+            $stmt->execute([$descricao, $unidade, $quantidade, $deposito, $estoque_minimo, $estoque_seguranca, $tipo_material, $segmento ]);
 
-    public function alterarMaterial($id, $descricao, $unidade, $quantidade, $deposito, $estoque_minimo, $estoque_seguranca, $tipo_material) {
-        $conn = getConnection();
-        $sql = "UPDATE estoque SET descricao=?, unidade_medida=?, quantidade=?, deposito=?, estoque_minimo=?, estoque_seguranca=?, tipo_material=? WHERE id=?";
-        $stmt = $conn->prepare($sql);
-        $stmt->execute([$descricao, $unidade, $quantidade, $deposito, $estoque_minimo, $estoque_seguranca, $tipo_material, $id]);
-    }
+            // Redireciona para home.php com mensagem de sucesso
+            header("Location: http://localhost/almoxarifado/estoque-php/front/home.php?status=success");
+            exit;
 
-    public function excluirMaterial($id) {
-        $conn = getConnection();
-        $sql = "DELETE FROM estoque WHERE id=?";
-        $stmt = $conn->prepare($sql);
-        $stmt->execute([$id]);
-    }
-
-    public function listarMateriaisPorDeposito($deposito) {
-        $conn = getConnection();
-        $sql = "SELECT * FROM estoque WHERE deposito=?";
-        $stmt = $conn->prepare($sql);
-        $stmt->execute([$deposito]);
-        return $stmt->fetchAll();
-    }
-
-    public function alertaEstoque($id) {
-        $conn = getConnection();
-        $sql = "SELECT quantidade, estoque_minimo, estoque_seguranca FROM estoque WHERE id=?";
-        $stmt = $conn->prepare($sql);
-        $stmt->execute([$id]);
-        $material = $stmt->fetch();
-        
-        if ($material['quantidade'] <= $material['estoque_minimo']) {
-            return "Alerta: Estoque abaixo do mínimo!";
-        } elseif ($material['quantidade'] <= $material['estoque_seguranca']) {
-            return "Alerta: Estoque em nível de segurança!";
+        } catch (PDOException $e) {
+            // Redireciona para home.php com mensagem de erro
+            header("Location:  http://localhost/almoxarifado/estoque-php/front/home.php?status=error&message=" . urlencode($e->getMessage()));
+            exit;
         }
     }
+
+    public function buscarMateriais() {
+        $conn = getConnection();
+        if (!$conn) {
+            die("Erro ao conectar ao banco de dados");
+        }
+
+        $sql = "SELECT id, descricao, unidade_medida, quantidade, deposito, estoque_minimo, estoque_seguranca, tipo_material, segmento FROM estoque";
+        $stmt = $conn->prepare($sql);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function buscarMaterialPorId($id) {
+        $conn = getConnection();
+        if (!$conn) {
+            die("Erro ao conectar ao banco de dados");
+        }
+    
+        $sql = "SELECT * FROM estoque WHERE id = ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->execute([$id]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function atualizarMaterial($id, $descricao, $unidade_medida, $quantidade, $deposito, $estoque_minimo, $estoque_seguranca, $tipo_material, $segmento) {
+        $conn = getConnection();
+        if (!$conn) {
+            die("Erro ao conectar ao banco de dados");
+        }
+    
+        $sql = "UPDATE estoque SET descricao = ?, unidade_medida = ?, quantidade = ?, deposito = ?, estoque_minimo = ?, estoque_seguranca = ?, tipo_material = ?, segmento = ? WHERE id = ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->execute([$descricao, $unidade_medida, $quantidade, $deposito, $estoque_minimo, $estoque_seguranca, $tipo_material, $segmento, $id]);
+    }
+    
+    
+}
+
+// Verifica se o formulário foi enviado
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['action'] == 'cadastrar') {
+    $descricao = $_POST['descricao'];
+    $unidade = $_POST['unidade_medida'];
+    $quantidade = $_POST['quantidade'];
+    $deposito = $_POST['deposito'];
+    $estoque_minimo = $_POST['estoque_minimo'];
+    $estoque_seguranca = $_POST['estoque_seguranca'];
+    $tipo_material = $_POST['tipo_material'];
+    $segmento =$_POST['segmento'];
+    $estoqueController = new EstoqueController();
+    $estoqueController->cadastrarMaterial($descricao, $unidade, $quantidade, $deposito, $estoque_minimo, $estoque_seguranca, $tipo_material, $segmento);
 }
 ?>
