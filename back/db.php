@@ -3,9 +3,9 @@
 // Função para retornar a conexão ao banco de dados
 function getConnection() {
     $servername = "localhost";
-    $username = "root";
-    $password = ""; // Geralmente no XAMPP a senha é vazia para root
-    $dbname = "clinica"; // Nome do banco de dados
+    $username = "pjusto";
+    $password = "1234"; // Geralmente no XAMPP a senha é vazia para root
+    $dbname = "estoque"; // Nome do banco de dados
 
 
     try {
