@@ -1,5 +1,6 @@
 <?php
-include('db.php');
+require_once 'db.php';
+
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
@@ -68,10 +69,31 @@ public function cadastrarMaterial($descricao, $unidade, $quantidade, $deposito, 
 
 }
 
+function verificarEstoque($produtoId) {
+    $conn = getConnection();
+    
+    if (!$conn instanceof mysqli) {
+        die("Erro na conexão com o banco de dados.");
+    }
+
+    $sql = "SELECT quantidade FROM estoque WHERE id = $produtoId";
+    $result = $conn->query($sql);
+    $quantidade = 0;
+
+    if ($result && $row = $result->fetch_assoc()) {
+        $quantidade = $row['quantidade'];
+    }
+
+    return $quantidade;
+}
+
+
 
 // Verifica se a ação é "listarMateriais" e chama a função
 if (isset($_GET['action']) && $_GET['action'] === 'listarMateriais') {
     $controller = new EstoqueController();
     $controller->listarMateriais();
 }
+
+
 ?>

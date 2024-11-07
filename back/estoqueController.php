@@ -1,8 +1,10 @@
 <?php
-include('db.php');
+require_once 'db.php';
+
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
+
 
 class EstoqueController {
     public function cadastrarMaterial($descricao, $unidade, $quantidade, $deposito, $estoque_minimo, $estoque_seguranca, $tipo_material, $segmento ) {
@@ -29,12 +31,14 @@ class EstoqueController {
         if (!$conn) {
             die("Erro ao conectar ao banco de dados");
         }
-
-        $sql = "SELECT id, descricao, unidade_medida, quantidade, deposito, estoque_minimo, estoque_seguranca, tipo_material, segmento FROM estoque";
+    
+        // Inclua 'preco' na consulta SQL
+        $sql = "SELECT id, descricao, unidade_medida, quantidade, deposito, estoque_minimo, estoque_seguranca, tipo_material, segmento, preco FROM estoque";
         $stmt = $conn->prepare($sql);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+    
 
     public function buscarMaterialPorId($id) {
         $conn = getConnection();
@@ -59,8 +63,36 @@ class EstoqueController {
         $stmt->execute([$descricao, $unidade_medida, $quantidade, $deposito, $estoque_minimo, $estoque_seguranca, $tipo_material, $segmento, $id]);
     }
     
-    
+    public function emitirNotaFiscal($produtoId, $quantidade, $preco) {
+        $subtotal = $quantidade * $preco;
+        $totalNota = $subtotal;
+
+        try {
+            $conn = getConnection();
+            $conn->beginTransaction();
+
+            // Insere a nota fiscal e obtém o ID
+            $stmt = $conn->prepare("INSERT INTO notas (data_emissao, total) VALUES (NOW(), ?)");
+            $stmt->execute([$totalNota]);
+            $notaId = $conn->lastInsertId();
+
+            // Insere o item da nota e atualiza o estoque
+            $stmtItem = $conn->prepare("INSERT INTO nota_itens (nota_id, produto_id, quantidade, preco_unitario, subtotal) VALUES (?, ?, ?, ?, ?)");
+            $stmtItem->execute([$notaId, $produtoId, $quantidade, $preco, $subtotal]);
+
+            // Atualiza o estoque do produto
+            $stmtEstoque = $conn->prepare("UPDATE estoque SET quantidade = quantidade - ? WHERE id = ?");
+            $stmtEstoque->execute([$quantidade, $produtoId]);
+
+            $conn->commit();
+            return ['success' => true];
+        } catch (Exception $e) {
+            $conn->rollBack();
+            return ['success' => false, 'message' => $e->getMessage()];
+        }
+    }
 }
+    
 
 // Verifica se o formulário foi enviado
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['action'] == 'cadastrar') {
@@ -75,4 +107,31 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['a
     $estoqueController = new EstoqueController();
     $estoqueController->cadastrarMaterial($descricao, $unidade, $quantidade, $deposito, $estoque_minimo, $estoque_seguranca, $tipo_material, $segmento);
 }
+if ($_GET['action'] == 'verificarEstoque') {
+    $produtoId = $_GET['produtoId'];
+    header('Content-Type: application/json'); // Adicione esta linha para JSON
+    echo json_encode(['quantidade' => verificarEstoque($produtoId)]);
+}
+
+
+
+// Processamento do formulário de emissão de nota
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['action'] === 'emitirNota') {
+    // Captura os dados enviados pelo formulário
+    $produtoId = $_POST['produto_id'];
+    $quantidade = $_POST['quantidade'];
+    $preco = $_POST['preco'];
+
+    $estoqueController = new EstoqueController();
+    $result = $estoqueController->emitirNotaFiscal($produtoId, $quantidade, $preco);
+
+    // Redireciona de volta para `emissao_notas.php` com a mensagem de status
+    if ($result['success']) {
+        header('Location: ../front/emissao_notas.php?message=Nota emitida com sucesso');
+    } else {
+        header('Location: ../front/emissao_notas.php?message=' . urlencode($result['message']));
+    }
+    exit;
+}
+
 ?>

@@ -1,5 +1,6 @@
 <?php
-include('db.php');
+require_once 'db.php';
+
 session_start();
 
 class Usuario {
@@ -19,7 +20,7 @@ class Usuario {
 
                 if ($stmtCheck->rowCount() > 0) {
                     // Email já cadastrado - Redirecionar para a página de cadastro com mensagem de erro
-                    header('Location: http://localhost/almoxarifado/estoque-php/front/cadastra.php?error=email_exists');
+                    header('Location: ../front/cadastra.php?error=email_exists');
                     exit();
                 }
 
@@ -72,23 +73,23 @@ class Usuario {
                     // Verificar se a função está definida
                     if (empty($usuario['funcao'])) {
                         // Função não definida - Redirecionar com mensagem de aviso
-                        header('Location: http://localhost/almoxarifado/estoque-php/index.php?error=no_funcao');
+                        header('Location: ../estoque-php/index.php?error=no_funcao');
                         exit();
                     }
     
                     // Redirecionar para a página baseada na função do usuário
                     if ($usuario['funcao'] == 'Venda') {
-                        header('Location: http://localhost/almoxarifado/estoque-php/front/home_venda.php');
+                        header('Location: ../front/home_vendas.php');
                     } elseif ($usuario['funcao'] == 'Estoque') {
-                        header('Location: http://localhost/almoxarifado/estoque-php/front/home_estoque.php');
+                        header('Location: ../front/home_estoque.php');
                     } else {
                         // Caso a função não seja "Venda" ou "Estoque", redirecionar para uma página padrão
-                        header('Location: http://localhost/almoxarifado/estoque-php/front/home_default.php');
+                        header('Location: ../front/home_default.php');
                     }
                     exit();
                 } else {
                     // Credenciais inválidas - Redirecionar de volta ao login com uma mensagem de erro
-                    header('Location: http://localhost/almoxarifado/estoque-php/index.php?error=invalid_credentials');
+                    header('Location: ../estoque-php/index.php?error=invalid_credentials');
                     exit();
                 }
             } catch (PDOException $e) {

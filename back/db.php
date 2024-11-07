@@ -1,12 +1,10 @@
 <?php
-
 // Função para retornar a conexão ao banco de dados
 function getConnection() {
     $servername = "localhost";
     $username = "pjusto";
-    $password = "1234"; // Geralmente no XAMPP a senha é vazia para root
-    $dbname = "estoque"; // Nome do banco de dados
-
+    $password = "1234"; // Atualize com a senha correta se necessário
+    $dbname = "estoque";
 
     try {
         $conn = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
@@ -14,13 +12,7 @@ function getConnection() {
         return $conn; // Retorna a conexão
     } catch (PDOException $e) {
         echo "Erro de conexão: " . $e->getMessage();
-        return null; // Retorna null caso a conexão falhe
+        return null; // Retorna null se a conexão falhar
     }
 }
-$conn = getConnection();
-if (!$conn) {
-    die("Erro ao conectar ao banco de dados");
-}
-
-
 ?>
