@@ -65,7 +65,7 @@ if (isset($_GET['error']) && $_GET['error'] === 'no_permission') {
                     <a class="nav-link" href="relatorio.php">Relatórios</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="relatorionf.php">Relatório De Nota Fiscal</a>
+                    <a class="nav-link" href="homeadm.php">Relatório De Nota Fiscal</a>
                 </li>
                 <!-- Informações do usuário -->
                 <li class="nav-item dropdown">

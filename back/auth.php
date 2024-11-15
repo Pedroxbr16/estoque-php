@@ -15,8 +15,10 @@ $permissoes = [
     'relatorio.php' => ['Admin','Estoque'],                   // Apenas "Admin" pode acessar
     'editar_produto.php' => ['Estoque', 'Admin'],    // Apenas "Estoque" e "Admin" podem acessar
     'emissao_notas.php' => ['Admin', 'Venda'],  
-    'relatorionf.php.php' => ['Admin', 'Venda'],
-       // Apenas "Admin" e "Venda" podem acessar
+    'relatorionf.php' => ['Admin', 'Venda'],
+    'homeadm.php' => ['Admin','Estoque' ],
+
+       
     // Adicione outras páginas e permissões conforme necessário
 ];
 

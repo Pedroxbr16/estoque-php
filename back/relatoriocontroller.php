@@ -51,5 +51,23 @@ class Relatorio {
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC)['total'];
     }
+
+    public function getNotasPorMes() {
+        $stmt = $this->conn->prepare("SELECT MONTH(data_venda) as mes, COUNT(*) as total FROM notas GROUP BY MONTH(data_venda)");
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function getNotasPorAno() {
+        $stmt = $this->conn->prepare("SELECT YEAR(data_venda) as ano, COUNT(*) as total FROM notas GROUP BY YEAR(data_venda)");
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function getNotasPorUsuarios() {
+        $stmt = $this->conn->prepare("SELECT usuario_id, COUNT(*) as total FROM notas GROUP BY usuario_id");
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 }
 ?>
