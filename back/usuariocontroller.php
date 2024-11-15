@@ -1,15 +1,12 @@
 <?php
-require_once 'db.php';
-
 session_start();
+require_once 'db.php';
 
 class Usuario {
 
     // Função para cadastrar um usuário
     public function cadastrarUsuario($firstname, $lastname, $funcao, $email, $password) {
-
         $conn = getConnection();
-
         if ($conn) {
             try {
                 // Verificar se o email já está cadastrado
@@ -19,26 +16,20 @@ class Usuario {
                 $stmtCheck->execute();
 
                 if ($stmtCheck->rowCount() > 0) {
-                    // Email já cadastrado - Redirecionar para a página de cadastro com mensagem de erro
                     header('Location: ../front/cadastra.php?error=email_exists');
                     exit();
                 }
 
-                // Preparar a consulta SQL para inserir dados
+                // Inserir dados do usuário
                 $sql = "INSERT INTO usuarios (nome, sobrenome, funcao, email, password) VALUES (:firstname, :lastname, :funcao, :email, :password)";
                 $stmt = $conn->prepare($sql);
-
-                // Associar valores aos parâmetros
                 $stmt->bindParam(':firstname', $firstname);
                 $stmt->bindParam(':lastname', $lastname);
                 $stmt->bindParam(':funcao', $funcao);
                 $stmt->bindParam(':email', $email);
                 $stmt->bindParam(':password', $password);
-
-                // Executar a declaração
                 $stmt->execute();
 
-                // Redirecionar para index.php após o cadastro
                 header('Location: ../index.php');
                 exit();
             } catch (PDOException $e) {
@@ -53,45 +44,39 @@ class Usuario {
     public function validarLogin($email, $password) {
         $sql = "SELECT * FROM usuarios WHERE email = :email";
         $conn = getConnection();
-    
         if ($conn) {
             try {
-                // Preparar a consulta para buscar o usuário pelo email
                 $stmt = $conn->prepare($sql);
                 $stmt->bindParam(':email', $email);
                 $stmt->execute();
-    
+
                 $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
-    
-                // Verificar se o usuário existe e a senha está correta
+
                 if ($usuario && password_verify($password, $usuario['password'])) {
-                    // Login bem-sucedido: salvar dados do usuário na sessão
-                    $_SESSION['usuario_id'] = $usuario['id'];
-                    $_SESSION['usuario_nome'] = $usuario['firstname'];
-                    $_SESSION['usuario_funcao'] = $usuario['funcao']; // Adiciona função à sessão
-    
-                    // Verificar se a função está definida
-                    if (empty($usuario['funcao'])) {
-                        // Função não definida - Redirecionar com mensagem de aviso
-                        header('Location: ../estoque-php/index.php?error=no_funcao');
-                        exit();
-                    }
-    
-                    // Redirecionar para a página baseada na função do usuário
+                    
+
+                      // Ajuste os campos conforme os nomes no banco de dados
+                      $_SESSION['usuario_id'] = $usuario['id_usuario'];
+                      $_SESSION['usuario_nome'] = $usuario['nome'];
+                      $_SESSION['usuario_funcao'] = $usuario['funcao'];
+                      $_SESSION['usuarioId'] = $usuario['id_usuario']; // Define o ID do usuário na sessão
+                     
+      
+                    // Redirecionamento com base na função
                     if ($usuario['funcao'] == 'Venda') {
                         header('Location: ../front/home_vendas.php');
                     } elseif ($usuario['funcao'] == 'Estoque') {
-                        header('Location: ../front/home_estoque.php');
+                        header('Location: ../front/home.php');
                     } else {
-                        // Caso a função não seja "Venda" ou "Estoque", redirecionar para uma página padrão
-                        header('Location: ../front/home_default.php');
+                        header('Location: ../index.php?error=no_funcao');
                     }
                     exit();
                 } else {
-                    // Credenciais inválidas - Redirecionar de volta ao login com uma mensagem de erro
-                    header('Location: ../estoque-php/index.php?error=invalid_credentials');
+                    header('Location: ../index.php?error=invalid_credentials');
                     exit();
                 }
+                
+                
             } catch (PDOException $e) {
                 echo "Erro ao validar login: " . $e->getMessage();
             }
@@ -99,25 +84,29 @@ class Usuario {
             echo "Erro ao conectar ao banco de dados.";
         }
     }
-    
 
+    // Função para deslogar o usuário
+    public function logout() {
+        session_unset();
+        session_destroy();
+        header('Location: ../index.php');
+        exit();
+    }
 }
 
-// Verificar se o formulário foi enviado para cadastro ou login
+// Verificar se o formulário foi enviado para cadastro, login ou logout
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $usuario = new Usuario();
 
     if (isset($_POST['register'])) {
-        // Cadastro de usuário
         $firstname = $_POST['sr_firstname'];
         $lastname = $_POST['sr_lastname'];
-        $funcao = $_POST['sr_funcao']; // Novo campo para função
+        $funcao = $_POST['sr_funcao'];
         $email = $_POST['email'];
         $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
 
         $usuario->cadastrarUsuario($firstname, $lastname, $funcao, $email, $password);
     } elseif (isset($_POST['login'])) {
-        // Login de usuário
         $email = $_POST['email'];
         $password = $_POST['password'];
 
@@ -125,5 +114,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 }
 
-
+// Verificar se o logout foi requisitado
+if (isset($_GET['action']) && $_GET['action'] === 'logout') {
+    $usuario = new Usuario();
+    $usuario->logout();
+}
 ?>

@@ -1,10 +1,11 @@
 <?php
+
 // Função para retornar a conexão ao banco de dados
 function getConnection() {
     $servername = "localhost";
-    $username = "pjusto";
-    $password = "1234"; // Atualize com a senha correta se necessário
-    $dbname = "estoque";
+    $username = "root";
+    $password = ""; // Atualize com a senha correta se necessário
+    $dbname = "clinica";
 
     try {
         $conn = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);

@@ -1,14 +1,10 @@
 <?php
-// arquivo test_db_connection.php
+session_start();
 
-// Incluindo o arquivo db.php para usar a função de conexão ao banco de dados
-require './back/db.php';
-
-// Tentar conectar ao banco de dados
-try {
-    $conn = getConnection();
-    echo "Conexão com o banco bem-sucedida!";
-} catch (PDOException $e) {
-    echo 'Erro de conexão: ' . $e->getMessage();
+if (!isset($_SESSION['teste'])) {
+    $_SESSION['teste'] = "Sessão funcionando!";
+    echo "Sessão iniciada. Recarregue a página para verificar a persistência.";
+} else {
+    echo "Sessão persistente: " . $_SESSION['teste'];
 }
 ?>

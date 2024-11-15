@@ -1,11 +1,11 @@
 <?php
+session_start();
+require '../back/auth.php'; // Caminho para o arquivo auth.php
+
 include('../back/db.php');
 include_once('../back/estoqueController.php');
-// Exibe uma mensagem de erro ou sucesso se o parâmetro `message` estiver presente na URL
-if (isset($_GET['message'])) {
-    echo "<script>alert('" . htmlspecialchars($_GET['message']) . "');</script>";
-}
 
+// Inicializa o controlador de estoque
 $estoqueController = new EstoqueController();
 $produtos = $estoqueController->buscarMateriais();
 ?>
@@ -17,6 +17,7 @@ $produtos = $estoqueController->buscarMateriais();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Emissão de Nota Fiscal</title>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> <!-- SweetAlert Script -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
     <style>
         /* Estilos globais */
@@ -38,7 +39,7 @@ $produtos = $estoqueController->buscarMateriais();
         }
 
         .container {
-            max-width: 600px;
+            max-width: 800px;
             width: 100%;
         }
 
@@ -66,7 +67,6 @@ $produtos = $estoqueController->buscarMateriais();
             box-sizing: border-box;
         }
 
-        /* Botões */
         button {
             padding: 10px 15px;
             margin: 10px 5px 0 0;
@@ -96,7 +96,6 @@ $produtos = $estoqueController->buscarMateriais();
             background-color: #0056b3;
         }
 
-        /* Botão de voltar e resetar */
         .back-button,
         .reset-button {
             background-color: #6c757d;
@@ -109,16 +108,16 @@ $produtos = $estoqueController->buscarMateriais();
             background-color: #5a6268;
         }
 
-        /* Tabela de itens */
         table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
+            font-size: 0.9em;
         }
 
         th,
         td {
-            padding: 10px;
+            padding: 12px;
             border: 1px solid #ddd;
             text-align: center;
         }
@@ -126,201 +125,82 @@ $produtos = $estoqueController->buscarMateriais();
         th {
             background-color: #004085;
             color: #fff;
+            font-weight: bold;
+            text-transform: uppercase;
         }
 
         td {
             background-color: #f9f9f9;
         }
 
+        tr:nth-child(even) td {
+            background-color: #e9f1f7;
+        }
+
         tfoot td {
             font-weight: bold;
             background-color: #e9ecef;
         }
-    </style>
 
-    <script>
-        let produtos = [];
-
-        function adicionarProduto() {
-            const produtoSelect = document.getElementById("produto");
-            const quantidade = parseInt(document.getElementById("quantidade").value);
-            const produtoSelecionado = produtoSelect.options[produtoSelect.selectedIndex];
-            const nome = produtoSelecionado.text.split(" - ")[0];
-            const preco = parseFloat(produtoSelecionado.getAttribute("data-preco"));
-            const subtotal = preco * quantidade;
-
-            produtos.push({
-                id: produtoSelecionado.value,
-                nome,
-                quantidade,
-                preco,
-                subtotal
-            });
-            atualizarTabela();
-        }
-
-        function atualizarTabela() {
-            const tabela = document.getElementById("tabela-itens");
-            tabela.innerHTML = "";
-            let total = 0;
-
-            produtos.forEach((produto) => {
-                total += produto.subtotal;
-                tabela.innerHTML += `<tr>
-            <td>${produto.nome}</td>
-            <td>${produto.quantidade}</td>
-            <td>R$ ${produto.preco.toFixed(2)}</td>
-            <td>R$ ${produto.subtotal.toFixed(2)}</td>
-        </tr>`;
-            });
-
-            document.getElementById("total").textContent = "R$ " + total.toFixed(2);
-            document.getElementById("itens").value = JSON.stringify(produtos); // Coloca os produtos no campo oculto
-        }
-
-        function resetarNota() {
-            produtos = [];
-            atualizarTabela();
-            document.getElementById("total").textContent = "R$ 0,00";
-        }
-
-        function prepareFormData() {
-            // Coloca os produtos no campo oculto para envio no formulário
-            document.getElementById("itens").value = JSON.stringify(produtos);
-        }
-
-
-        function adicionarProduto() {
-            const produtoSelect = document.getElementById("produto");
-            const quantidade = parseInt(document.getElementById("quantidade").value);
-            const produtoSelecionado = produtoSelect.options[produtoSelect.selectedIndex];
-            const nome = produtoSelecionado.text.split(" - ")[0];
-            const preco = parseFloat(produtoSelecionado.getAttribute("data-preco"));
-            const subtotal = preco * quantidade;
-
-            produtos.push({
-                nome,
-                quantidade,
-                preco,
-                subtotal
-            });
-            atualizarTabela();
-        }
-
-        function atualizarTabela() {
-            const tabela = document.getElementById("tabela-itens");
-            tabela.innerHTML = "";
-            let total = 0;
-
-            produtos.forEach((produto) => {
-                total += produto.subtotal;
-                tabela.innerHTML += `<tr>
-                    <td>${produto.nome}</td>
-                    <td>${produto.quantidade}</td>
-                    <td>R$ ${produto.preco.toFixed(2)}</td>
-                    <td>R$ ${produto.subtotal.toFixed(2)}</td>
-                </tr>`;
-            });
-
-            document.getElementById("total").textContent = "R$ " + total.toFixed(2);
-            document.getElementById("itens").value = JSON.stringify(produtos);
-        }
-
-        function resetarNota() {
-            produtos = [];
-            atualizarTabela();
-            document.getElementById("total").textContent = "R$ 0,00";
-        }
-
-        async function gerarPDF() {
-            const {
-                jsPDF
-            } = window.jspdf;
-            const doc = new jsPDF();
-
-            // Cabeçalho do PDF
-            doc.setFontSize(16);
-            doc.text("Nota Fiscal", 105, 10, {
-                align: "center"
-            });
-
-            // Cabeçalho da Tabela
-            doc.setFontSize(12);
-            doc.text("Produto", 10, 30);
-            doc.text("Quantidade", 80, 30);
-            doc.text("Preço Unitário", 120, 30);
-            doc.text("Subtotal", 170, 30);
-
-            // Itens da Nota
-            let posY = 40;
-            let total = 0;
-            produtos.forEach((produto) => {
-                doc.text(produto.nome, 10, posY);
-                doc.text(String(produto.quantidade), 80, posY);
-                doc.text("R$ " + produto.preco.toFixed(2), 120, posY);
-                doc.text("R$ " + produto.subtotal.toFixed(2), 170, posY);
-                total += produto.subtotal;
-                posY += 10;
-            });
-
-            // Total
-            doc.setFontSize(12);
-            doc.text("Total: R$ " + total.toFixed(2), 170, posY + 10);
-
-            // Baixar o PDF
-            doc.save("nota_fiscal.pdf");
-        }
-        async function emitirNotaFiscal() {
-            console.log("Função emitirNotaFiscal chamada"); // Para verificar se a função está sendo chamada
-            const response = await fetch('../back/estoqueController.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    produtos
-                })
-            });
-
-            const result = await response.json();
-            if (result.success) {
-                gerarPDF(); // Gera o PDF após salvar no banco
-                resetarNota(); // Reseta os itens na página
-                alert("Nota fiscal emitida e salva com sucesso!");
-            } else {
-                alert("Erro ao salvar a nota fiscal: " + result.message);
+        /* Responsividade */
+        @media screen and (max-width: 600px) {
+            table {
+                font-size: 0.8em;
+            }
+            
+            th, td {
+                padding: 8px;
             }
         }
-    </script>
+    </style>
 </head>
 
 <body>
-
     <div class="container">
         <button class="back-button" onclick="window.location.href='home_vendas.php'">Voltar para Home</button>
 
         <h1>Emissão de Nota Fiscal</h1>
 
-        <form action="../back/estoqueController.php?action=emitirNotaFiscal" method="POST" ">
-            <h2>Seleção de Produtos</h2>
+        <!-- Exibe a mensagem usando SweetAlert, se houver uma mensagem presente na URL -->
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const urlParams = new URLSearchParams(window.location.search);
+                const message = urlParams.get('message');
 
-            <!-- Seleção de Produtos -->
+                if (message) {
+                    Swal.fire({
+                        title: 'Aviso!',
+                        text: message,
+                        icon: message.includes("sucesso") ? 'success' : 'error',
+                        confirmButtonText: 'OK'
+                    }).then(() => {
+                        // Remove os parâmetros da URL após exibir o alerta
+                        const newURL = window.location.origin + window.location.pathname;
+                        window.history.replaceState(null, '', newURL);
+                    });
+                }
+            });
+        </script>
+
+<form action="../back/estoqueController.php?action=emitirNota" method="POST" onsubmit="prepareFormData(); gerarPDF(); ">
+<h2>Seleção de Produtos</h2>
+
             <label for="produto">Produto:</label>
-            <select id="produto">
+            <select id="produto" name="produto_id">
                 <?php foreach ($produtos as $produto): ?>
-                    <option value="<?= $produto['id'] ?>" data-preco="<?= $produto['preco'] ?>">
-                        <?= $produto['descricao'] ?> - R$ <?= number_format($produto['preco'], 2, ',', '.') ?>
+                    <option value="<?= htmlspecialchars($produto['id'], ENT_QUOTES, 'UTF-8') ?>" data-preco="<?= htmlspecialchars($produto['preco'], ENT_QUOTES, 'UTF-8') ?>">
+                        <?= htmlspecialchars($produto['descricao'], ENT_QUOTES, 'UTF-8') ?> - R$ <?= number_format($produto['preco'], 2, ',', '.') ?>
                     </option>
                 <?php endforeach; ?>
             </select>
+
             <label for="quantidade">Quantidade:</label>
-            <input type="number" id="quantidade" value="1" min="1">
+            <input type="number" name="quantidade" id="quantidade" value="1" min="1">
+
             <button type="button" onclick="adicionarProduto()">Adicionar Produto</button>
 
-            <!-- Campo oculto para enviar os dados dos produtos -->
             <input type="hidden" id="itens" name="itens">
 
-            <!-- Tabela de Itens -->
             <h2>Itens da Nota</h2>
             <table>
                 <thead>
@@ -340,21 +220,118 @@ $produtos = $estoqueController->buscarMateriais();
                 </tfoot>
             </table>
 
-            <br><br>
-            <!-- Botões -->
-            <button type="submit">Emitir Nota Fiscal em PDF</button>
+            <button type="submit">Emitir Nota Fiscal e PDF</button>
             <button type="button" class="reset-button" onclick="resetarNota()">Resetar Nota</button>
         </form>
-
     </div>
-    <script>
-        // Ajusta o valor de `preco` ao selecionar o produto
-        document.getElementById('produto').addEventListener('change', function() {
-            const selectedOption = this.options[this.selectedIndex];
-            document.getElementById('preco').value = selectedOption.getAttribute('data-preco');
-        });
-    </script>
 
+    <script>
+        let produtos = []; // Array para armazenar os produtos adicionados
+
+        function adicionarProduto() {
+            const produtoSelect = document.getElementById("produto");
+            const quantidade = parseInt(document.getElementById("quantidade").value);
+            const produtoSelecionado = produtoSelect.options[produtoSelect.selectedIndex];
+
+            // Obtém o nome, id e preço do produto selecionado
+            const nome = produtoSelecionado.text.split(" - ")[0];
+            const produtoId = produtoSelecionado.value;
+            const preco = parseFloat(produtoSelecionado.getAttribute("data-preco"));
+
+            // Verifica se o preço foi obtido corretamente
+            if (isNaN(preco)) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Erro!',
+                    text: 'Preço não encontrado para o produto selecionado.'
+                });
+                return;
+            }
+
+            // Verifica se o produto já existe no array
+            const produtoExistente = produtos.find(produto => produto.produto_id === produtoId);
+            if (produtoExistente) {
+                // Atualiza a quantidade e o subtotal do produto existente
+                produtoExistente.quantidade += quantidade;
+                produtoExistente.subtotal = produtoExistente.quantidade * produtoExistente.preco;
+            } else {
+                // Adiciona o novo produto ao array
+                const subtotal = preco * quantidade;
+                produtos.push({
+                    produto_id: produtoId,
+                    nome,
+                    quantidade,
+                    preco,
+                    subtotal
+                });
+            }
+
+            atualizarTabela();
+        }
+
+        function atualizarTabela() {
+            const tabela = document.getElementById("tabela-itens");
+            tabela.innerHTML = ""; // Limpa a tabela antes de atualizar
+            let total = 0;
+
+            // Itera sobre o array `produtos` para exibir cada item
+            produtos.forEach((produto) => {
+                total += produto.subtotal;
+                tabela.innerHTML += `
+                    <tr>
+                        <td>${produto.nome}</td>
+                        <td>${produto.quantidade}</td>
+                        <td>R$ ${produto.preco.toFixed(2)}</td>
+                        <td>R$ ${produto.subtotal.toFixed(2)}</td>
+                    </tr>
+                `;
+            });
+
+            // Atualiza o valor total na interface para visualização
+            document.getElementById("total").textContent = "R$ " + total.toFixed(2);
+
+            // Armazena os produtos no campo oculto para envio no formulário
+            document.getElementById("itens").value = JSON.stringify(produtos);
+        }
+
+        function resetarNota() {
+            produtos = [];
+            atualizarTabela();
+        }
+
+        function prepareFormData() {
+            document.getElementById("itens").value = JSON.stringify(produtos);
+        }
+        function gerarPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            doc.setFontSize(16);
+            doc.text("Nota Fiscal", 105, 10, { align: "center" });
+            doc.setFontSize(12);
+            doc.text("Produto", 10, 30);
+            doc.text("Quantidade", 80, 30);
+            doc.text("Preço Unitário", 120, 30);
+            doc.text("Subtotal", 170, 30);
+
+            let posY = 40;
+            let total = 0;
+            produtos.forEach((produto) => {
+                doc.text(produto.nome, 10, posY);
+                doc.text(String(produto.quantidade), 80, posY);
+                doc.text("R$ " + produto.preco.toFixed(2), 120, posY);
+                doc.text("R$ " + produto.subtotal.toFixed(2), 170, posY);
+                total += produto.subtotal;
+                posY += 10;
+            });
+
+            doc.setFontSize(12);
+            doc.text("Total: R$ " + total.toFixed(2), 170, posY + 10);
+
+            doc.save("nota_fiscal.pdf");
+        }
+    </script>
 </body>
 
 </html>
+V

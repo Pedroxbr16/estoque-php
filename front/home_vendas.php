@@ -1,13 +1,46 @@
+<?php
+session_start();
+
+require '../back/auth.php'; // Caminho para o arquivo auth.php
+
+?>
 <!DOCTYPE html>
+
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home - Sistema de Vendas</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <link rel="stylesheet" href="../assets/styles.css">
 </head>
+
 <body>
+
+    <?php
+    // Exibir o SweetAlert se o parâmetro de erro estiver presente
+    if (isset($_GET['error']) && $_GET['error'] === 'no_permission') {
+        echo "<script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Exibir o alerta com SweetAlert
+            Swal.fire({
+                icon: 'error',
+                title: 'Acesso Negado',
+                text: 'Você não tem permissão para acessar essa página.',
+                confirmButtonText: 'OK'
+            }).then(() => {
+                // Remover o parâmetro 'error' da URL
+                const url = new URL(window.location);
+                url.searchParams.delete('error');
+                window.history.replaceState(null, '', url);
+            });
+        });
+    </script>";
+    }
+    ?>
     <!-- Navegação -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container">
@@ -25,6 +58,26 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="emissao_notas.php">Emissão de Notas</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="../back/usuariocontroller.php?action=logout">Sair</a>
+                    </li>
+                    <!-- Informações do usuário -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="usuarioDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <?php echo $_SESSION['usuario_nome']; ?>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="usuarioDropdown">
+                            <li class="dropdown-item-text">
+                                <?php echo $_SESSION['usuario_funcao']; ?>
+                            </li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="../back/usuariocontroller.php?action=logout">Sair</a>
+                            </li>
+                        </ul>
                     </li>
                 </ul>
             </div>
@@ -62,4 +115,5 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>

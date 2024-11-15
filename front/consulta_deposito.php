@@ -1,5 +1,8 @@
 <?php
+session_start();
 include('../back/estoqueController.php');
+
+require '../back/auth.php'; // Caminho para o arquivo auth.php
 
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);

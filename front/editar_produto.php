@@ -1,5 +1,8 @@
 <?php
+session_start();
 include('../back/estoqueController.php');
+
+require '../back/auth.php'; // Caminho para o arquivo auth.php
 
 $estoqueController = new EstoqueController();
 $id = $_GET['id'];
