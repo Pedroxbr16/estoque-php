@@ -1,6 +1,6 @@
 
 <?php
-session_start();
+
 require '../back/auth.php'; // Caminho para o arquivo auth.php
 ?>
 <!DOCTYPE html>

@@ -64,6 +64,9 @@ if (isset($_GET['error']) && $_GET['error'] === 'no_permission') {
                 <li class="nav-item">
                     <a class="nav-link" href="relatorio.php">Relatórios</a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="relatorionf.php">Relatório De Nota Fiscal</a>
+                </li>
                 <!-- Informações do usuário -->
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="usuarioDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -101,7 +104,7 @@ if (isset($_GET['error']) && $_GET['error'] === 'no_permission') {
             <h1 class="display-4">Bem-vindo ao Sistema de Estoque</h1>
             <p class="lead">Gerencie facilmente o seu estoque, cadastre materiais e acompanhe relatórios de desempenho.</p>
             <a href="cadastro_estoque.php" class="btn btn-primary btn-lg mt-3">Cadastrar Material</a>
-            <a href="relatorios.html" class="btn btn-outline-secondary btn-lg mt-3">Visualizar Relatórios</a>
+            <a href="relatorio.php" class="btn btn-outline-secondary btn-lg mt-3">Visualizar Relatórios</a>
         </div>
     </header>
 

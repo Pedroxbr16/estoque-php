@@ -1,10 +1,19 @@
 <?php
-session_start();
+
+include('../back/estoqueController.php');
 require '../back/auth.php'; // Caminho para o arquivo auth.php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
+
+$estoqueController = new EstoqueController();
+$produtos = $estoqueController->buscarMateriais();
 ?>
 
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,6 +22,35 @@ require '../back/auth.php'; // Caminho para o arquivo auth.php
     <link rel="stylesheet" href="../assets/css/relatorio.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
 </head>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        fetch('../back/depositoController.php?action=listarMateriais')
+            .then(response => response.json())
+            .then(data => {
+                const tbody = document.querySelector("table tbody");
+                tbody.innerHTML = ""; // Limpa as linhas anteriores
+
+                data.forEach(material => {
+                    const row = document.createElement("tr");
+
+                    row.innerHTML = `
+                    <td>${material.descricao}</td>
+                    <td>${material.unidade_medida}</td>
+                    <td>${material.quantidade}</td>
+                    <td>${material.deposito}</td>
+                    <td>${material.estoque_minimo}</td>
+                    <td>${material.estoque_seguranca}</td>
+                    <td>${material.tipo_material}</td>
+                    <td>${material.segmento}</td>
+                `;
+
+                    tbody.appendChild(row);
+                });
+            })
+            .catch(error => console.error("Erro ao buscar os dados:", error));
+    });
+</script>
+
 <body>
     <div class="container mt-5">
         <h1 class="text-center mb-4">Relatório de Estoque</h1>
@@ -48,9 +86,7 @@ require '../back/auth.php'; // Caminho para o arquivo auth.php
                     <option value="educacional">Educacional</option>
                 </select>
             </div>
-            <div class="col-12">
-                <button type="button" class="btn btn-primary w-100">Buscar</button>
-            </div>
+
         </form>
 
         <!-- Botão para exportar para PDF -->
@@ -97,11 +133,16 @@ require '../back/auth.php'; // Caminho para o arquivo auth.php
                 <!-- Mais linhas podem ser adicionadas dinamicamente -->
             </tbody>
         </table>
+        <div class="col-12">
+            <button type="button" id="buscarButton" class="btn btn-primary w-100">Buscar</button>
+        </div>
     </div>
 
     <script>
         function exportToPDF() {
-            const { jsPDF } = window.jspdf;
+            const {
+                jsPDF
+            } = window.jspdf;
             const doc = new jsPDF();
 
             // Adicionando título ao PDF
@@ -122,18 +163,60 @@ require '../back/auth.php'; // Caminho para o arquivo auth.php
             // Configuração de largura das colunas
             const columnWidths = [35, 25, 20, 30, 25, 30, 30, 30];
             doc.autoTable({
-                head: [["Descrição", "Unidade de Medida", "Quantidade", "Depósito", "Estoque Mínimo", "Estoque de Segurança", "Tipo de Material", "Segmento"]],
+                head: [
+                    ["Descrição", "Unidade de Medida", "Quantidade", "Depósito", "Estoque Mínimo", "Estoque de Segurança", "Tipo de Material", "Segmento"]
+                ],
                 body: rows,
                 startY: 30,
-                columnStyles: { 0: { cellWidth: columnWidths[0] } },
+                columnStyles: {
+                    0: {
+                        cellWidth: columnWidths[0]
+                    }
+                },
             });
 
             // Salva o PDF
             doc.save("Relatorio_Estoque.pdf");
         }
     </script>
+    <script>
+        document.getElementById("buscarButton").addEventListener("click", function() {
+            const descricao = document.getElementById("descricao").value;
+            const tipoMaterial = document.getElementById("tipo_material").value;
+            const segmento = document.getElementById("segmento").value;
+
+            // Monta a URL com os parâmetros de filtro
+            const url = `../back/depositoController.php?action=listarMateriais&descricao=${encodeURIComponent(descricao)}&tipo_material=${encodeURIComponent(tipoMaterial)}&segmento=${encodeURIComponent(segmento)}`;
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    const tbody = document.querySelector("table tbody");
+                    tbody.innerHTML = ""; // Limpa as linhas anteriores
+
+                    data.forEach(material => {
+                        const row = document.createElement("tr");
+
+                        row.innerHTML = `
+                            <td>${material.descricao}</td>
+                            <td>${material.unidade_medida}</td>
+                            <td>${material.quantidade}</td>
+                            <td>${material.deposito}</td>
+                            <td>${material.estoque_minimo}</td>
+                            <td>${material.estoque_seguranca}</td>
+                            <td>${material.tipo_material}</td>
+                            <td>${material.segmento}</td>
+                        `;
+
+                        tbody.appendChild(row);
+                    });
+                })
+                .catch(error => console.error("Erro ao buscar os dados:", error));
+        });
+    </script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.21/jspdf.plugin.autotable.min.js"></script>
 </body>
+
 </html>

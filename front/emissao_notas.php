@@ -229,45 +229,66 @@ $produtos = $estoqueController->buscarMateriais();
         let produtos = []; // Array para armazenar os produtos adicionados
 
         function adicionarProduto() {
-            const produtoSelect = document.getElementById("produto");
-            const quantidade = parseInt(document.getElementById("quantidade").value);
-            const produtoSelecionado = produtoSelect.options[produtoSelect.selectedIndex];
+    const produtoSelect = document.getElementById("produto");
+    const quantidade = parseInt(document.getElementById("quantidade").value);
+    const produtoId = produtoSelect.value;
 
-            // Obtém o nome, id e preço do produto selecionado
-            const nome = produtoSelecionado.text.split(" - ")[0];
-            const produtoId = produtoSelecionado.value;
-            const preco = parseFloat(produtoSelecionado.getAttribute("data-preco"));
+    // Realizar uma verificação de estoque usando uma requisição AJAX
+    fetch(`../back/estoqueController.php?action=verificarEstoque&produto_id=${produtoId}&quantidade=${quantidade}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Se houver estoque suficiente, adicionar o produto
+                const produtoSelecionado = produtoSelect.options[produtoSelect.selectedIndex];
+                const nome = produtoSelecionado.text.split(" - ")[0];
+                const preco = parseFloat(produtoSelecionado.getAttribute("data-preco"));
 
-            // Verifica se o preço foi obtido corretamente
-            if (isNaN(preco)) {
+                if (isNaN(preco)) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Erro!',
+                        text: 'Preço não encontrado para o produto selecionado.'
+                    });
+                    return;
+                }
+
+                // Verifica se o produto já existe no array
+                const produtoExistente = produtos.find(produto => produto.produto_id === produtoId);
+                if (produtoExistente) {
+                    // Atualiza a quantidade e o subtotal do produto existente
+                    produtoExistente.quantidade += quantidade;
+                    produtoExistente.subtotal = produtoExistente.quantidade * produtoExistente.preco;
+                } else {
+                    // Adiciona o novo produto ao array
+                    const subtotal = preco * quantidade;
+                    produtos.push({
+                        produto_id: produtoId,
+                        nome,
+                        quantidade,
+                        preco,
+                        subtotal
+                    });
+                }
+
+                atualizarTabela();
+            } else {
+                // Se não houver estoque suficiente, exibir um alerta
                 Swal.fire({
                     icon: 'error',
-                    title: 'Erro!',
-                    text: 'Preço não encontrado para o produto selecionado.'
-                });
-                return;
-            }
-
-            // Verifica se o produto já existe no array
-            const produtoExistente = produtos.find(produto => produto.produto_id === produtoId);
-            if (produtoExistente) {
-                // Atualiza a quantidade e o subtotal do produto existente
-                produtoExistente.quantidade += quantidade;
-                produtoExistente.subtotal = produtoExistente.quantidade * produtoExistente.preco;
-            } else {
-                // Adiciona o novo produto ao array
-                const subtotal = preco * quantidade;
-                produtos.push({
-                    produto_id: produtoId,
-                    nome,
-                    quantidade,
-                    preco,
-                    subtotal
+                    title: 'Estoque Insuficiente',
+                    text: 'Não há quantidade suficiente em estoque para este produto.'
                 });
             }
-
-            atualizarTabela();
-        }
+        })
+        .catch(error => {
+            console.error('Erro ao verificar o estoque:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Erro!',
+                text: 'Erro ao verificar o estoque. Tente novamente.'
+            });
+        });
+}
 
         function atualizarTabela() {
             const tabela = document.getElementById("tabela-itens");

@@ -120,6 +120,19 @@ class EstoqueController {
             return ['success' => false, 'message' => $e->getMessage()];
         }
     }
+    public function verificarEstoque($produtoId, $quantidadeSolicitada) {
+        $conn = getConnection();
+        $stmt = $conn->prepare("SELECT quantidade FROM estoque WHERE id = ?");
+        $stmt->execute([$produtoId]);
+        $produto = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+        if ($produto && $produto['quantidade'] >= $quantidadeSolicitada) {
+            return true; // Quantidade suficiente disponível
+        } else {
+            return false; // Quantidade insuficiente
+        }
+    }
+    
 }
     
 // Verifica se o formulário foi enviado
@@ -152,4 +165,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
     }
     exit;
 }
+
+
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['action']) && $_GET['action'] === 'verificarEstoque') {
+    $produtoId = $_GET['produto_id'];
+    $quantidade = $_GET['quantidade'];
+
+    $estoqueController = new EstoqueController();
+    $disponivel = $estoqueController->verificarEstoque($produtoId, $quantidade);
+
+    header('Content-Type: application/json');
+    echo json_encode(['success' => $disponivel]);
+    exit;
+}
+
+
+
 ?>

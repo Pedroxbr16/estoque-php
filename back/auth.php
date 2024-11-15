@@ -14,7 +14,9 @@ $permissoes = [
     'consulta_deposito.php' => ['Estoque', 'Venda', 'Admin'], // "Estoque", "Venda" e "Admin" podem acessar
     'relatorio.php' => ['Admin','Estoque'],                   // Apenas "Admin" pode acessar
     'editar_produto.php' => ['Estoque', 'Admin'],    // Apenas "Estoque" e "Admin" podem acessar
-    'emissao_notas.php' => ['Admin', 'Venda'],       // Apenas "Admin" e "Venda" podem acessar
+    'emissao_notas.php' => ['Admin', 'Venda'],  
+    'relatorionf.php.php' => ['Admin', 'Venda'],
+       // Apenas "Admin" e "Venda" podem acessar
     // Adicione outras páginas e permissões conforme necessário
 ];
 
