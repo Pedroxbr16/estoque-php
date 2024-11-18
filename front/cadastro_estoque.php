@@ -1,10 +1,10 @@
-
 <?php
 
 require '../back/auth.php'; // Caminho para o arquivo auth.php
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,6 +12,7 @@ require '../back/auth.php'; // Caminho para o arquivo auth.php
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../assets/css/cadastro.css">
 </head>
+
 <body>
     <div class="container mt-5">
         <h1 class="text-center mb-4">Cadastro de Estoque</h1>
@@ -22,11 +23,15 @@ require '../back/auth.php'; // Caminho para o arquivo auth.php
         </div>
 
         <!-- Formulário para cadastro de estoque -->
-        <form action="../back/estoqueController.php"  method="POST" class="row g-3">
-            <div class="col-md-6">
+        <form action="../back/estoqueController.php" method="POST" class="row g-3">
+
+        
+            <div class="col-md-6 position-relative">
                 <label for="descricao" class="form-label">Descrição do Material:</label>
-                <input type="text" name="descricao" class="form-control" id="descricao" required>
+                <input type="text" name="descricao" class="form-control" id="descricao" required autocomplete="off">
+                <ul id="sugestoesDescricao" class="list-group position-absolute"></ul>
             </div>
+
 
             <div class="col-md-6">
                 <label for="unidade_medida" class="form-label">Unidade de Medida:</label>
@@ -46,10 +51,12 @@ require '../back/auth.php'; // Caminho para o arquivo auth.php
                 <input type="number" name="quantidade" class="form-control" id="quantidade" required>
             </div>
 
-            <div class="col-md-6">
+            <div class="col-md-6 position-relative">
                 <label for="deposito" class="form-label">Depósito:</label>
-                <input type="text" name="deposito" class="form-control" id="deposito" required>
+                <input type="text" name="deposito" class="form-control" id="deposito" required autocomplete="off">
+                <ul id="sugestoesDeposito" class="list-group position-absolute"></ul>
             </div>
+
 
             <div class="col-md-6">
                 <label for="estoque_minimo" class="form-label">Estoque Mínimo:</label>
@@ -64,24 +71,17 @@ require '../back/auth.php'; // Caminho para o arquivo auth.php
             <div class="col-md-6">
                 <label for="tipo_material" class="form-label">Tipo de Material:</label>
                 <select name="tipo_material" class="form-select" id="tipo_material" required>
-                    <option value="" selected>Selecione...</option>
-                    <option value="consumo">Consumo</option>
-                    <option value="escritorio">Escritório</option>
-                    <option value="venda">Venda</option>
+                    <option value="" selected>Carregando...</option>
                 </select>
             </div>
 
             <div class="col-md-6">
                 <label for="segmento" class="form-label">Grupo de Mercadorias:</label>
                 <select name="segmento" class="form-select" id="segmento" required>
-                    <option value="" selected>Selecione...</option>
-                    <option value="industrial">Industrial</option>
-                    <option value="comercial">Comercial</option>
-                    <option value="residencial">Residencial</option>
-                    <option value="hospitalar">Hospitalar</option>
-                    <option value="educacional">Educacional</option>
+                    <option value="" selected>Carregando...</option>
                 </select>
             </div>
+
 
             <div class="col-12">
                 <button type="submit" name="action" value="cadastrar" class="btn btn-success w-100">Cadastrar</button>
@@ -101,5 +101,7 @@ require '../back/auth.php'; // Caminho para o arquivo auth.php
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../assets/js/cadastro_estoque.js"></script>
 </body>
+
 </html>

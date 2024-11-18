@@ -18,6 +18,8 @@ $produto = $estoqueController->buscarMaterialPorId($id);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Editar Produto</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 </head>
 <body>
     <div class="container mt-5">
@@ -73,29 +75,28 @@ $produto = $estoqueController->buscarMaterialPorId($id);
             <!-- Campo Tipo de Material -->
             <div class="col-md-6">
                 <label for="tipo_material" class="form-label">Tipo de Material:</label>
-                <select name="tipo_material" class="form-select" id="tipo_material" required>
-                    <option value="consumo" <?php if ($produto['tipo_material'] == 'consumo') echo 'selected'; ?>>Consumo</option>
-                    <option value="escritorio" <?php if ($produto['tipo_material'] == 'escritorio') echo 'selected'; ?>>Escritório</option>
-                    <option value="venda" <?php if ($produto['tipo_material'] == 'venda') echo 'selected'; ?>>Venda</option>
-                </select>
+                <select name="tipo_material" class="form-select" id="tipo_material" required data-tipo-material="<?php echo htmlspecialchars($produto['tipo_material']); ?>">
+    <!-- As opções serão carregadas dinamicamente -->
+</select>
             </div>
 
             <!-- Campo Segmento -->
             <div class="col-md-6">
                 <label for="segmento" class="form-label">Grupo de Mercadorias:</label>
-                <select name="segmento" class="form-select" id="segmento" required>
-                    <option value="industrial" <?php if ($produto['segmento'] == 'industrial') echo 'selected'; ?>>Industrial</option>
-                    <option value="comercial" <?php if ($produto['segmento'] == 'comercial') echo 'selected'; ?>>Comercial</option>
-                    <option value="residencial" <?php if ($produto['segmento'] == 'residencial') echo 'selected'; ?>>Residencial</option>
-                    <option value="hospitalar" <?php if ($produto['segmento'] == 'hospitalar') echo 'selected'; ?>>Hospitalar</option>
-                    <option value="educacional" <?php if ($produto['segmento'] == 'educacional') echo 'selected'; ?>>Educacional</option>
-                </select>
+                <select name="segmento" class="form-select" id="segmento" required data-segmento="<?php echo htmlspecialchars($produto['segmento']); ?>">
+    <!-- As opções serão carregadas dinamicamente -->
+</select>
             </div>
 
             <div class="col-12">
                 <button type="submit" class="btn btn-success w-100">Salvar Alterações</button>
             </div>
+            <div class="col-12">
+    <a href="consulta_deposito.php" class="btn btn-secondary w-100">Cancelar</a>
+</div>
+
         </form>
     </div>
+    <script src="../assets/js/editar-produto.js"></script>
 </body>
 </html>

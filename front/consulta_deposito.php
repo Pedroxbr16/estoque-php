@@ -1,16 +1,7 @@
 <?php
-include('../back/estoqueController.php');
-
-require '../back/auth.php'; // Caminho para o arquivo auth.php
-
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
-
-$estoqueController = new EstoqueController();
-$produtos = $estoqueController->buscarMateriais();
+include_once '../back/auth.php';
 ?>
+
 
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -20,36 +11,10 @@ $produtos = $estoqueController->buscarMateriais();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Consulta de Estoque</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="../assets/css/consulta.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
 </head>
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        fetch('../back/depositoController.php?action=listarMateriais')
-            .then(response => response.json())
-            .then(data => {
-                const tbody = document.querySelector("table tbody");
-                tbody.innerHTML = ""; // Limpa as linhas anteriores
-
-                data.forEach(material => {
-                    const row = document.createElement("tr");
-
-                    row.innerHTML = `
-                    <td>${material.descricao}</td>
-                    <td>${material.unidade_medida}</td>
-                    <td>${material.quantidade}</td>
-                    <td>${material.deposito}</td>
-                    <td>${material.estoque_minimo}</td>
-                    <td>${material.estoque_seguranca}</td>
-                    <td>${material.tipo_material}</td>
-                    <td>${material.segmento}</td>
-                `;
-
-                    tbody.appendChild(row);
-                });
-            })
-            .catch(error => console.error("Erro ao buscar os dados:", error));
-    });
-</script>
 
 <body>
     <div class="container mt-5">
@@ -60,6 +25,7 @@ $produtos = $estoqueController->buscarMateriais();
             <a href="home.php" class="btn btn-secondary">← Voltar para Home</a>
         </div>
 
+        <!-- Formulário de Filtros -->
         <form id="filterForm" class="row g-3 mb-4">
             <div class="col-md-4">
                 <label for="descricao" class="form-label">Descrição do Material:</label>
@@ -68,22 +34,21 @@ $produtos = $estoqueController->buscarMateriais();
             <div class="col-md-4">
                 <label for="tipo_material" class="form-label">Tipo de Material:</label>
                 <select class="form-select" id="tipo_material">
-
+                    <option value="" selected>Todos</option>
                 </select>
             </div>
             <div class="col-md-4">
                 <label for="segmento" class="form-label">Grupo de Mercadorias:</label>
                 <select class="form-select" id="segmento">
-                  
+                    <option value="" selected>Todos</option>
                 </select>
             </div>
             <div class="col-12">
-            <button type="button" id="buscarButton" class="btn btn-primary w-100">Buscar</button>
-
+                <button type="button" id="buscarButton" class="btn btn-primary w-100">Buscar</button>
             </div>
         </form>
 
-        <!-- Tabela de resultados -->
+        <!-- Tabela de Resultados -->
         <div class="table-responsive">
             <table class="table table-striped table-bordered">
                 <thead class="table-dark">
@@ -99,40 +64,22 @@ $produtos = $estoqueController->buscarMateriais();
                         <th>Ações</th>
                     </tr>
                 </thead>
-                <tbody>
-                    <?php foreach ($produtos as $produto): ?>
-                        <tr>
-                            <td><?php echo htmlspecialchars($produto['descricao']); ?></td>
-                            <td><?php echo htmlspecialchars($produto['unidade_medida']); ?></td>
-                            <td><?php echo htmlspecialchars($produto['quantidade']); ?></td>
-                            <td><?php echo htmlspecialchars($produto['deposito']); ?></td>
-                            <td><?php echo htmlspecialchars($produto['estoque_minimo']); ?></td>
-                            <td><?php echo htmlspecialchars($produto['estoque_seguranca']); ?></td>
-                            <td><?php echo htmlspecialchars($produto['tipo_material']); ?></td>
-                            <td><?php echo htmlspecialchars($produto['segmento'] ?? 'N/A'); ?></td>
-                            <td>
-                                <!-- Botão Editar -->
-                                <a href="editar_produto.php?id=<?php echo $produto['id']; ?>" class="btn btn-primary btn-sm">Editar</a>
-
-                                <!-- Botão Excluir -->
-                                <button
-                                    class="btn btn-danger btn-sm excluir-btn"
-                                    data-id="<?php echo $produto['id']; ?>">
-                                    Excluir
-                                </button>
-                            </td>
-                        </tr>
-                    <?php endforeach; ?>
+                <tbody id="resultTable">
+                    <tr>
+                        <td colspan="9" class="text-center">Carregando dados...</td>
+                    </tr>
                 </tbody>
-
             </table>
-          
         </div>
-    </div>
-    
-   <script src="../assets/js/consulta-deposito.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <div id="pagination" class="d-flex justify-content-center mt-3"></div>
 
+    </div>
+
+    <script src="../assets/js/consulta-deposito.js">
+        
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>

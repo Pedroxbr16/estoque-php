@@ -8,72 +8,79 @@ require_once 'db.php';
 
 class EstoqueController {
 
-    public function listarTiposMaterial() {
-        try {
-            $conn = getConnection(); // Função para obter a conexão com o banco de dados
-            $sql = "SELECT DISTINCT tipo_material FROM estoque ORDER BY tipo_material ASC";
-            $stmt = $conn->prepare($sql);
-            $stmt->execute();
-            return $stmt->fetchAll(PDO::FETCH_ASSOC); // Retorna os resultados
-        } catch (PDOException $e) {
-            http_response_code(500);
-            return ['error' => 'Erro ao listar tipos de material: ' . $e->getMessage()];
-        }
+ // Listar Tipos de Material
+ public function listarTiposMaterial() {
+    try {
+        $conn = getConnection();
+        $sql = "SELECT DISTINCT tipo_material FROM estoque ORDER BY tipo_material ASC";
+        $stmt = $conn->prepare($sql);
+        $stmt->execute();
+        $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // Retorna JSON válido
+        header('Content-Type: application/json');
+        ob_clean(); // Limpa qualquer saída extra
+        echo json_encode($result);
+        exit;
+    } catch (PDOException $e) {
+        http_response_code(500);
+        echo json_encode(['error' => 'Erro ao listar tipos de material: ' . $e->getMessage()]);
+        exit;
     }
+}
 
-    public function listarSegmentos() {
-        try {
-            $conn = getConnection(); // Função para obter a conexão com o banco de dados
-            $sql = "SELECT DISTINCT segmento FROM estoque ORDER BY segmento ASC";
-            $stmt = $conn->prepare($sql);
-            $stmt->execute();
-            return $stmt->fetchAll(PDO::FETCH_ASSOC); // Retorna os resultados
-        } catch (PDOException $e) {
-            http_response_code(500);
-            return ['error' => 'Erro ao listar segmentos: ' . $e->getMessage()];
-        }
+// Listar Segmentos
+public function listarSegmentos() {
+    try {
+        $conn = getConnection();
+        $sql = "SELECT DISTINCT segmento FROM estoque ORDER BY segmento ASC";
+        $stmt = $conn->prepare($sql);
+        $stmt->execute();
+        $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // Retorna JSON válido
+        header('Content-Type: application/json');
+        ob_clean(); // Limpa qualquer saída extra
+        echo json_encode($result);
+        exit;
+    } catch (PDOException $e) {
+        http_response_code(500);
+        echo json_encode(['error' => 'Erro ao listar segmentos: ' . $e->getMessage()]);
+        exit;
     }
+}
 
-    public function listarMateriais() {
-        try {
-            $conn = getConnection();
+// Listar Materiais
+public function listarMateriais($pagina = 1, $itensPorPagina = 10) {
+    try {
+        $conn = getConnection();
 
-            // Obter os parâmetros de filtro
-            $descricao = isset($_GET['descricao']) ? $_GET['descricao'] : '';
-            $tipo_material = isset($_GET['tipo_material']) && $_GET['tipo_material'] !== 'Todos' ? $_GET['tipo_material'] : '';
-            $segmento = isset($_GET['segmento']) && $_GET['segmento'] !== 'Todos' ? $_GET['segmento'] : '';
+        $offset = ($pagina - 1) * $itensPorPagina;
 
-            // Construir a consulta com filtros condicionais
-            $sql = "SELECT * FROM estoque WHERE 1=1";
-            $params = [];
+        $sql = "SELECT * FROM estoque LIMIT :limit OFFSET :offset";
+        $stmt = $conn->prepare($sql);
+        $stmt->bindValue(':limit', $itensPorPagina, PDO::PARAM_INT);
+        $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+        $stmt->execute();
 
-            if (!empty($descricao)) {
-                $sql .= " AND descricao LIKE ?";
-                $params[] = "%" . $descricao . "%"; // Busca por correspondências parciais
-            }
+        $materiais = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-            if (!empty($tipo_material)) {
-                $sql .= " AND tipo_material = ?";
-                $params[] = $tipo_material;
-            }
+        // Total de itens para cálculo de páginas
+        $totalItens = $conn->query("SELECT COUNT(*) FROM estoque")->fetchColumn();
+        $totalPaginas = ceil($totalItens / $itensPorPagina);
 
-            if (!empty($segmento)) {
-                $sql .= " AND segmento = ?";
-                $params[] = $segmento;
-            }
-
-            $stmt = $conn->prepare($sql);
-            $stmt->execute($params);
-            $materiais = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-            // Retorna os dados em formato JSON
-            header('Content-Type: application/json');
-            echo json_encode($materiais);
-        } catch (PDOException $e) {
-            http_response_code(500);
-            echo json_encode(['error' => $e->getMessage()]);
-        }
+        return [
+            'materiais' => $materiais,
+            'totalPaginas' => $totalPaginas,
+            'paginaAtual' => $pagina
+        ];
+    } catch (PDOException $e) {
+        http_response_code(500);
+        echo json_encode(['error' => $e->getMessage()]);
+        exit;
     }
+}
+
 
 
 public function cadastrarMaterial($descricao, $unidade, $quantidade, $deposito, $estoque_minimo, $estoque_seguranca, $tipo_material, $segmento) {
@@ -123,28 +130,19 @@ if (isset($_GET['action']) && $_GET['action'] === 'listarMateriais') {
     $controller = new EstoqueController();
     $controller->listarMateriais();
 }
-if ($_GET['action'] === 'excluirMaterial' && $_SERVER['REQUEST_METHOD'] === 'DELETE') {
-    $id = $_GET['id'];
 
-    try {
-        $stmt = $conn->prepare("DELETE FROM estoque WHERE id = :id");
-        $stmt->bindParam(':id', $id, PDO::PARAM_INT);
-        $stmt->execute();
-
-        echo json_encode(["success" => true]);
-    } catch (PDOException $e) {
-        http_response_code(500);
-        echo json_encode(["error" => "Erro ao excluir o produto: " . $e->getMessage()]);
-    }
-    exit;
-}
 if (isset($_GET['action'])) {
     $controller = new EstoqueController();
 
     switch ($_GET['action']) {
         case 'listarMateriais':
-            $controller->listarMateriais();
+            $pagina = isset($_GET['pagina']) ? (int)$_GET['pagina'] : 1;
+            $itensPorPagina = isset($_GET['itensPorPagina']) ? (int)$_GET['itensPorPagina'] : 10;
+        
+            header('Content-Type: application/json');
+            echo json_encode($controller->listarMateriais($pagina, $itensPorPagina));
             break;
+        
 
         case 'listarTiposMaterial':
             header('Content-Type: application/json');
@@ -156,42 +154,101 @@ if (isset($_GET['action'])) {
             echo json_encode($controller->listarSegmentos());
             break;
 
-        case 'excluirMaterial':
-            if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
-                $id = $_GET['id'];
-                try {
-                    $conn = getConnection();
-                    $stmt = $conn->prepare("DELETE FROM estoque WHERE id = :id");
-                    $stmt->bindParam(':id', $id, PDO::PARAM_INT);
-                    $stmt->execute();
-
-                    echo json_encode(["success" => true]);
-                } catch (PDOException $e) {
-                    http_response_code(500);
-                    echo json_encode(["error" => "Erro ao excluir o produto: " . $e->getMessage()]);
+            case 'excluirMaterial':
+                if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
+                    $id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
+    
+                    if ($id > 0) {
+                        try {
+                            $conn = getConnection();
+                            $stmt = $conn->prepare("DELETE FROM estoque WHERE id = :id");
+                            $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+                            $stmt->execute();
+    
+                            echo json_encode(["success" => true]);
+                        } catch (PDOException $e) {
+                            http_response_code(500);
+                            echo json_encode(["error" => "Erro ao excluir o material: " . $e->getMessage()]);
+                        }
+                    } else {
+                        http_response_code(400);
+                        echo json_encode(["error" => "ID inválido"]);
+                    }
+                } else {
+                    http_response_code(405);
+                    echo json_encode(["error" => "Método não permitido"]);
                 }
-            }
-            break;
-
-        default:
-            http_response_code(400);
-            echo json_encode(["error" => "Ação inválida"]);
-            break;
+                break;
+    
+            default:
+                http_response_code(400);
+                echo json_encode(["error" => "Ação inválida"]);
+                break;
+        }
+        exit; // Finaliza a execução do script após processar o switch
     }
-    exit;
+
+header('Content-Type: application/json');
+
+if (isset($_GET['query'])) {
+    try {
+        $query = $_GET['query'];
+        $conn = getConnection();
+        $stmt = $conn->prepare("SELECT DISTINCT deposito FROM estoque WHERE deposito LIKE :query LIMIT 10");
+        $stmt->bindValue(':query', '%' . $query . '%');
+        $stmt->execute();
+        $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        echo json_encode($result);
+    } catch (Exception $e) {
+        echo json_encode(['error' => $e->getMessage()]);
+    }
+} else {
+    echo json_encode(['error' => 'Parâmetro query não fornecido']);
+}
+header('Content-Type: application/json');
+
+try {
+    $conn = getConnection();
+    $stmt = $conn->query("SELECT DISTINCT segmento FROM estoque");
+    $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    echo json_encode($result);
+} catch (Exception $e) {
+    echo json_encode(['error' => $e->getMessage()]);
 }
 
-if ($_GET['action'] === 'dadosGraficos') {
-    $conn = getConnection();
-    $query = "SELECT tipo_material, SUM(quantidade) as total FROM estoque GROUP BY tipo_material";
+
+if ($_GET['action'] === 'filtrarMateriais') {
+    $descricao = $_GET['descricao'] ?? '';
+    $tipo_material = $_GET['tipo_material'] ?? '';
+    $segmento = $_GET['segmento'] ?? '';
+
+    $query = "SELECT * FROM estoque WHERE 1=1";
+    $params = [];
+
+    if (!empty($descricao)) {
+        $query .= " AND descricao LIKE :descricao";
+        $params[':descricao'] = '%' . $descricao . '%';
+    }
+
+    if (!empty($tipo_material)) {
+        $query .= " AND tipo_material = :tipo_material";
+        $params[':tipo_material'] = $tipo_material;
+    }
+
+    if (!empty($segmento)) {
+        $query .= " AND segmento = :segmento";
+        $params[':segmento'] = $segmento;
+    }
+
     $stmt = $conn->prepare($query);
-    $stmt->execute();
+    $stmt->execute($params);
     $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    header('Content-Type: application/json');
+
     echo json_encode($result);
     exit;
 }
-
 
 
 

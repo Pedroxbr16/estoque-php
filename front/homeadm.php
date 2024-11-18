@@ -43,7 +43,7 @@
                         <li class="nav-item">
                             <a class="nav-link" href="consultarnf.php">
                                 <span data-feather="file"></span>
-                                Consultar Nota Fiscala
+                                Consultar Nota Fiscal
                             </a>
                         </li>
                         <li class="nav-item">

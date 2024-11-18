@@ -8,24 +8,37 @@ error_reporting(E_ALL);
 $usuarioId = $_SESSION['usuarioId'];
 
 class EstoqueController {
-
-    public function listarMateriais() {
+    public function listarMateriais($pagina = 1, $itensPorPagina = 10) {
         try {
             $conn = getConnection();
     
-            $stmt = $conn->query("SELECT * FROM estoque");
+            $offset = ($pagina - 1) * $itensPorPagina;
+    
+            $sql = "SELECT * FROM estoque LIMIT :limit OFFSET :offset";
+            $stmt = $conn->prepare($sql);
+            $stmt->bindParam(':limit', $itensPorPagina, PDO::PARAM_INT);
+            $stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
+            $stmt->execute();
+    
             $materiais = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
-            // Adicione headers para evitar saída extra
-            header('Content-Type: application/json');
-            echo json_encode($materiais);
-            exit; // Certifique-se de interromper a execução aqui
+            // Contar total de itens para calcular o número de páginas
+            $totalItens = $conn->query("SELECT COUNT(*) FROM estoque")->fetchColumn();
+            $totalPaginas = ceil($totalItens / $itensPorPagina);
+    
+            // Retornar os dados e a paginação
+            return [
+                'materiais' => $materiais,
+                'totalPaginas' => $totalPaginas,
+                'paginaAtual' => $pagina
+            ];
         } catch (PDOException $e) {
             http_response_code(500);
             echo json_encode(['error' => $e->getMessage()]);
-            exit; // Impede qualquer saída extra
+            exit;
         }
     }
+    
     
     public function cadastrarMaterial($descricao, $unidade, $quantidade, $deposito, $estoque_minimo, $estoque_seguranca, $tipo_material, $segmento) {
         try {
@@ -60,27 +73,48 @@ class EstoqueController {
     }
     
     public function buscarMaterialPorId($id) {
-        $conn = getConnection();
-        if (!$conn) {
-            die("Erro ao conectar ao banco de dados");
+        try {
+            $conn = getConnection();
+            $sql = "SELECT * FROM estoque WHERE id = :id";
+            $stmt = $conn->prepare($sql);
+            $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+            $stmt->execute();
+            return $stmt->fetch(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            throw new Exception("Erro ao buscar material: " . $e->getMessage());
         }
-    
-        $sql = "SELECT * FROM estoque WHERE id = ?";
-        $stmt = $conn->prepare($sql);
-        $stmt->execute([$id]);
-        return $stmt->fetch(PDO::FETCH_ASSOC);
     }
+    
 
     public function atualizarMaterial($id, $descricao, $unidade_medida, $quantidade, $deposito, $estoque_minimo, $estoque_seguranca, $tipo_material, $segmento) {
-        $conn = getConnection();
-        if (!$conn) {
-            die("Erro ao conectar ao banco de dados");
+        try {
+            $conn = getConnection();
+            $sql = "UPDATE estoque 
+                    SET descricao = :descricao,
+                        unidade_medida = :unidade_medida,
+                        quantidade = :quantidade,
+                        deposito = :deposito,
+                        estoque_minimo = :estoque_minimo,
+                        estoque_seguranca = :estoque_seguranca,
+                        tipo_material = :tipo_material,
+                        segmento = :segmento
+                    WHERE id = :id";
+            $stmt = $conn->prepare($sql);
+            $stmt->bindParam(':descricao', $descricao);
+            $stmt->bindParam(':unidade_medida', $unidade_medida);
+            $stmt->bindParam(':quantidade', $quantidade);
+            $stmt->bindParam(':deposito', $deposito);
+            $stmt->bindParam(':estoque_minimo', $estoque_minimo);
+            $stmt->bindParam(':estoque_seguranca', $estoque_seguranca);
+            $stmt->bindParam(':tipo_material', $tipo_material);
+            $stmt->bindParam(':segmento', $segmento);
+            $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+            $stmt->execute();
+        } catch (PDOException $e) {
+            throw new Exception("Erro ao atualizar material: " . $e->getMessage());
         }
-    
-        $sql = "UPDATE estoque SET descricao = ?, unidade_medida = ?, quantidade = ?, deposito = ?, estoque_minimo = ?, estoque_seguranca = ?, tipo_material = ?, segmento = ? WHERE id = ?";
-        $stmt = $conn->prepare($sql);
-        $stmt->execute([$descricao, $unidade_medida, $quantidade, $deposito, $estoque_minimo, $estoque_seguranca, $tipo_material, $segmento, $id]);
     }
+    
     
     public function emitirNotaFiscal($produtos, $usuarioId) {
         $conn = getConnection();
@@ -176,7 +210,33 @@ class EstoqueController {
             return ['error' => $e->getMessage()];
         }
     }
+    public function listarGruposDeMercadoria() {
+        try {
+            $conn = getConnection();
+            $sql = "SELECT DISTINCT segmento FROM estoque ORDER BY segmento ASC";
+            $stmt = $conn->prepare($sql);
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            throw new Exception("Erro ao listar grupos de mercadoria: " . $e->getMessage());
+        }
+    }
+    
+    public function listarTiposDeMaterial() {
+        try {
+            $conn = getConnection();
+            $sql = "SELECT DISTINCT tipo_material FROM estoque ORDER BY tipo_material ASC";
+            $stmt = $conn->prepare($sql);
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            throw new Exception("Erro ao listar tipos de material: " . $e->getMessage());
+        }
+    }
+    
 }
+
+
     
 // Verifica se o formulário foi enviado
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['action'] == 'cadastrar') {
@@ -222,6 +282,50 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['action']) && $_GET['act
     exit;
 }
 
+// Verifica se a ação foi passada via GET
+if (isset($_GET['action'])) {
+    $controller = new EstoqueController();
+
+    switch ($_GET['action']) {
+        case 'listarMateriais':
+            header('Content-Type: application/json');
+            echo json_encode($controller->listarMateriais());
+            break;
+
+        case 'listarTiposMaterial':
+            header('Content-Type: application/json');
+            echo json_encode($controller->listarTiposMaterial());
+            break;
+
+        case 'listarSegmentos':
+            header('Content-Type: application/json');
+            echo json_encode($controller->listarSegmentos());
+            break;
+
+        case 'listarGruposDeMercadoria':
+            header('Content-Type: application/json');
+            echo json_encode($controller->listarGruposDeMercadoria());
+            break;
+
+        case 'listarTiposDeMaterial':
+            header('Content-Type: application/json');
+            echo json_encode($controller->listarTiposDeMaterial());
+            break;
+            case 'listarMateriais':
+                $pagina = isset($_GET['pagina']) ? (int)$_GET['pagina'] : 1;
+                $itensPorPagina = isset($_GET['itensPorPagina']) ? (int)$_GET['itensPorPagina'] : 10;
+            
+                header('Content-Type: application/json');
+                echo json_encode($controller->listarMateriais($pagina, $itensPorPagina));
+                break;
+
+        default:
+            http_response_code(400);
+            echo json_encode(['error' => 'Ação inválida']);
+            break;
+    }
+    exit; // Finaliza o processamento após tratar a ação
+}
 
 
 ?>
