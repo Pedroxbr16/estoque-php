@@ -2,12 +2,38 @@
 
 require_once 'db.php';
 
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
+
+
 
 
 class EstoqueController {
+
+    public function listarTiposMaterial() {
+        try {
+            $conn = getConnection(); // Função para obter a conexão com o banco de dados
+            $sql = "SELECT DISTINCT tipo_material FROM estoque ORDER BY tipo_material ASC";
+            $stmt = $conn->prepare($sql);
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC); // Retorna os resultados
+        } catch (PDOException $e) {
+            http_response_code(500);
+            return ['error' => 'Erro ao listar tipos de material: ' . $e->getMessage()];
+        }
+    }
+
+    public function listarSegmentos() {
+        try {
+            $conn = getConnection(); // Função para obter a conexão com o banco de dados
+            $sql = "SELECT DISTINCT segmento FROM estoque ORDER BY segmento ASC";
+            $stmt = $conn->prepare($sql);
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC); // Retorna os resultados
+        } catch (PDOException $e) {
+            http_response_code(500);
+            return ['error' => 'Erro ao listar segmentos: ' . $e->getMessage()];
+        }
+    }
+
     public function listarMateriais() {
         try {
             $conn = getConnection();
@@ -67,8 +93,10 @@ public function cadastrarMaterial($descricao, $unidade, $quantidade, $deposito, 
             exit;
         }
     }
+    
 
 }
+
 
 function verificarEstoque($produtoId) {
     $conn = getConnection();
@@ -95,6 +123,76 @@ if (isset($_GET['action']) && $_GET['action'] === 'listarMateriais') {
     $controller = new EstoqueController();
     $controller->listarMateriais();
 }
+if ($_GET['action'] === 'excluirMaterial' && $_SERVER['REQUEST_METHOD'] === 'DELETE') {
+    $id = $_GET['id'];
+
+    try {
+        $stmt = $conn->prepare("DELETE FROM estoque WHERE id = :id");
+        $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+        $stmt->execute();
+
+        echo json_encode(["success" => true]);
+    } catch (PDOException $e) {
+        http_response_code(500);
+        echo json_encode(["error" => "Erro ao excluir o produto: " . $e->getMessage()]);
+    }
+    exit;
+}
+if (isset($_GET['action'])) {
+    $controller = new EstoqueController();
+
+    switch ($_GET['action']) {
+        case 'listarMateriais':
+            $controller->listarMateriais();
+            break;
+
+        case 'listarTiposMaterial':
+            header('Content-Type: application/json');
+            echo json_encode($controller->listarTiposMaterial());
+            break;
+
+        case 'listarSegmentos':
+            header('Content-Type: application/json');
+            echo json_encode($controller->listarSegmentos());
+            break;
+
+        case 'excluirMaterial':
+            if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
+                $id = $_GET['id'];
+                try {
+                    $conn = getConnection();
+                    $stmt = $conn->prepare("DELETE FROM estoque WHERE id = :id");
+                    $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+                    $stmt->execute();
+
+                    echo json_encode(["success" => true]);
+                } catch (PDOException $e) {
+                    http_response_code(500);
+                    echo json_encode(["error" => "Erro ao excluir o produto: " . $e->getMessage()]);
+                }
+            }
+            break;
+
+        default:
+            http_response_code(400);
+            echo json_encode(["error" => "Ação inválida"]);
+            break;
+    }
+    exit;
+}
+
+if ($_GET['action'] === 'dadosGraficos') {
+    $conn = getConnection();
+    $query = "SELECT tipo_material, SUM(quantidade) as total FROM estoque GROUP BY tipo_material";
+    $stmt = $conn->prepare($query);
+    $stmt->execute();
+    $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    header('Content-Type: application/json');
+    echo json_encode($result);
+    exit;
+}
+
+
 
 
 ?>

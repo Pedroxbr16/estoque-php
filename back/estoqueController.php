@@ -8,6 +8,25 @@ error_reporting(E_ALL);
 $usuarioId = $_SESSION['usuarioId'];
 
 class EstoqueController {
+
+    public function listarMateriais() {
+        try {
+            $conn = getConnection();
+    
+            $stmt = $conn->query("SELECT * FROM estoque");
+            $materiais = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+            // Adicione headers para evitar saída extra
+            header('Content-Type: application/json');
+            echo json_encode($materiais);
+            exit; // Certifique-se de interromper a execução aqui
+        } catch (PDOException $e) {
+            http_response_code(500);
+            echo json_encode(['error' => $e->getMessage()]);
+            exit; // Impede qualquer saída extra
+        }
+    }
+    
     public function cadastrarMaterial($descricao, $unidade, $quantidade, $deposito, $estoque_minimo, $estoque_seguranca, $tipo_material, $segmento) {
         try {
             $conn = getConnection();
@@ -68,47 +87,41 @@ class EstoqueController {
         try {
             $conn->beginTransaction();
     
-            // Calcula o total da nota fiscal
             $totalNota = 0;
+            $precos = []; // Cache dos preços
             foreach ($produtos as $produto) {
                 $produtoId = $produto['produto_id'];
                 $quantidade = $produto['quantidade'];
-                
-                // Obtém o preço unitário do produto
-                $stmt = $conn->prepare("SELECT preco FROM estoque WHERE id = ?");
-                $stmt->execute([$produtoId]);
-                $produtoData = $stmt->fetch(PDO::FETCH_ASSOC);
     
-                if (!$produtoData) {
-                    throw new Exception('Produto não encontrado');
+                if (!isset($precos[$produtoId])) {
+                    $stmt = $conn->prepare("SELECT preco FROM estoque WHERE id = ?");
+                    $stmt->execute([$produtoId]);
+                    $produtoData = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+                    if (!$produtoData) {
+                        throw new Exception('Produto não encontrado');
+                    }
+    
+                    $precos[$produtoId] = $produtoData['preco'];
                 }
     
-                $preco = $produtoData['preco'];
-                $subtotal = $quantidade * $preco;
+                $subtotal = $quantidade * $precos[$produtoId];
                 $totalNota += $subtotal;
             }
     
-            // Insere a nota fiscal e obtém o ID
             $stmt = $conn->prepare("INSERT INTO notas (usuario_id, data_venda, hora_venda, total_venda) VALUES (?, CURDATE(), CURTIME(), ?)");
             $stmt->execute([$usuarioId, $totalNota]);
             $notaId = $conn->lastInsertId();
     
-            // Insere cada item da nota na tabela nota_itens
             foreach ($produtos as $produto) {
                 $produtoId = $produto['produto_id'];
                 $quantidade = $produto['quantidade'];
-                
-                // Obtém o preço unitário do produto novamente
-                $stmt = $conn->prepare("SELECT preco FROM estoque WHERE id = ?");
-                $stmt->execute([$produtoId]);
-                $produtoData = $stmt->fetch(PDO::FETCH_ASSOC);
-                $preco = $produtoData['preco'];
+                $preco = $precos[$produtoId];
                 $subtotal = $quantidade * $preco;
     
                 $stmtItem = $conn->prepare("INSERT INTO nota_itens (nota_id, produto_id, quantidade, preco_unitario, subtotal) VALUES (?, ?, ?, ?, ?)");
                 $stmtItem->execute([$notaId, $produtoId, $quantidade, $preco, $subtotal]);
     
-                // Atualiza o estoque do produto
                 $stmtEstoque = $conn->prepare("UPDATE estoque SET quantidade = quantidade - ? WHERE id = ?");
                 $stmtEstoque->execute([$quantidade, $produtoId]);
             }
@@ -120,6 +133,7 @@ class EstoqueController {
             return ['success' => false, 'message' => $e->getMessage()];
         }
     }
+    
     public function verificarEstoque($produtoId, $quantidadeSolicitada) {
         $conn = getConnection();
         $stmt = $conn->prepare("SELECT quantidade FROM estoque WHERE id = ?");
@@ -132,7 +146,36 @@ class EstoqueController {
             return false; // Quantidade insuficiente
         }
     }
-    
+
+    public function listarTiposMaterial() {
+        try {
+            $conn = getConnection();
+            $sql = "SELECT DISTINCT tipo_material FROM estoque ORDER BY tipo_material ASC";
+            $stmt = $conn->prepare($sql);
+            $stmt->execute();
+            $tiposMaterial = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            return $tiposMaterial;
+        } catch (PDOException $e) {
+            http_response_code(500);
+            return ['error' => $e->getMessage()];
+        }
+    }
+
+    public function listarSegmentos() {
+        try {
+            $conn = getConnection();
+            $sql = "SELECT DISTINCT segmento FROM estoque ORDER BY segmento ASC";
+            $stmt = $conn->prepare($sql);
+            $stmt->execute();
+            $segmentos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            return $segmentos;
+        } catch (PDOException $e) {
+            http_response_code(500);
+            return ['error' => $e->getMessage()];
+        }
+    }
 }
     
 // Verifica se o formulário foi enviado

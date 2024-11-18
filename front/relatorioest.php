@@ -1,18 +1,18 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel de Vendas Diárias do Mês</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../assets/css/homeadmnavbar.css">
+    <link rel="stylesheet" href="../assets/css/relatorioest.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <title>Document</title>
 </head>
 
 <body>
-    <!--  inicio do nav  -->
-
     <nav class="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow">
         <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#">Nome da companhia</a>
         <input class="form-control form-control-dark w-50" type="text" placeholder="Search" aria-label="Search">
@@ -27,7 +27,7 @@
         <div class="row">
             <nav class="col-md-2 sidebar">
                 <div class="sidebar-sticky">
-                <ul class="nav flex-column">
+                    <ul class="nav flex-column">
                         <li class="nav-item">
                             <a class="nav-link active" href="homeadm.php">
                                 <span data-feather="home"></span>
@@ -55,7 +55,7 @@
                         <li class="nav-item">
                             <a class="nav-link" href="relatoriovend.php">
                                 <span data-feather="users"></span>
-                               Vendendor
+                                Vendendor
                             </a>
                         </li>
                         <li class="nav-item">
@@ -67,11 +67,10 @@
                         <li class="nav-item">
                             <a class="nav-link" href="home.php">
                                 <span data-feather="layers"></span>
-                                Integrações
+                                Sistema
                             </a>
                         </li>
                     </ul>
-
                     <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
                         <span>Relatórios salvos</span>
                         <a class="d-flex align-items-center text-muted" href="#">
@@ -108,9 +107,46 @@
             </nav>
 
             <!--  fim do nav  -->
+
+
         </div>
     </div>
 
+
+    <div class="container mt-5">
+        <h2 class="text-center mb-4">Distribuição por Tipo de Material</h2>
+        <div class="chart-container" style="position: relative; height:50vh; width:100%;">
+            <canvas id="graficoEstoque"></canvas>
+        </div>
+    </div> 
+       <div class="container mt-5">
+        <h2 class="text-center mb-4">Distribuição por Estoque Minino e Estoque Atual</h2>
+        <div class="chart-container" style="position: relative; height:50vh; width:100%;">
+            <canvas id="graficoEstoqueMinimo"></canvas>
+        </div>
+    </div>
+<!-- Modal para Gráfico Expandido -->
+<div id="modalGrafico" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <canvas id="graficoExpandido" width="600" height="400"></canvas>
+        <div id="filtros">
+            <label for="filtroCategoria">Filtrar por Tipo de Material:</label>
+            <select id="filtroCategoria">
+                <option value="todos">Todos</option>
+                <!-- Opções dinâmicas adicionadas pelo JavaScript -->
+            </select>
+        </div>
+    </div>
+</div>
+
+
+    <script src="../assets/js/relatorioest.js">
+    </script>
+      <script src="../assets/js/relatorioestMM.js">
+    </script>
+    <!--  <script src="../assets/js/relatorioestmodal.js"> -->
+    </script>
 </body>
 
 </html>

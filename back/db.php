@@ -11,6 +11,7 @@ function getConnection() {
         $conn = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
         $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         return $conn; // Retorna a conexão
+        echo "conectado com sucesso";
     } catch (PDOException $e) {
         echo "Erro de conexão: " . $e->getMessage();
         return null; // Retorna null se a conexão falhar

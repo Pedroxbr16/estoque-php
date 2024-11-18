@@ -24,7 +24,7 @@ $produtos = $estoqueController->buscarMateriais();
 </head>
 <script>
     document.addEventListener("DOMContentLoaded", function() {
-        fetch('../back/depositoController.php?action=listarMateriais')
+        fetch('../back/routes/listarMateriais.php')
             .then(response => response.json())
             .then(data => {
                 const tbody = document.querySelector("table tbody");

@@ -1,19 +1,15 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
-
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel de Vendas Diárias do Mês</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../assets/css/homeadmnavbar.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>Document</title>
 </head>
-
 <body>
-    <!--  inicio do nav  -->
-
-    <nav class="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow">
+<nav class="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow">
         <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#">Nome da companhia</a>
         <input class="form-control form-control-dark w-50" type="text" placeholder="Search" aria-label="Search">
         <ul class="navbar-nav px-3">
@@ -71,7 +67,6 @@
                             </a>
                         </li>
                     </ul>
-
                     <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
                         <span>Relatórios salvos</span>
                         <a class="d-flex align-items-center text-muted" href="#">
@@ -110,7 +105,5 @@
             <!--  fim do nav  -->
         </div>
     </div>
-
 </body>
-
 </html>

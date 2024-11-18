@@ -60,29 +60,47 @@ session_start();
         <div class="row">
             <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
                 <div class="position-sticky pt-3 sidebar-sticky">
-                    <ul class="nav flex-column">
+                <ul class="nav flex-column">
                         <li class="nav-item">
-                            <a class="nav-link active" aria-current="page" href="#">
-                                <i class="bi bi-house-door-fill"></i>
-                                Dashboard
+                            <a class="nav-link active" href="homeadm.php">
+                                <span data-feather="home"></span>
+                                Dashboard <span class="sr-only">(atual)</span>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#">
-                                <i class="bi bi-file-earmark-text"></i>
-                                Notas Fiscais
+                            <a class="nav-link" href="relatoriopd.php">
+                                <span data-feather="file"></span>
+                                Pedidos
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#">
-                                <i class="bi bi-box"></i>
+                            <a class="nav-link" href="consultarnf.php>
+                                <span data-feather="file"></span>
+                                Consultar Nota Fiscala
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="relatorioest.php">
+                                <span data-feather="shopping-cart"></span>
                                 Produtos
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#">
-                                <i class="bi bi-people"></i>
-                                Clientes
+                            <a class="nav-link" href="relatoriovend.php">
+                                <span data-feather="users"></span>
+                               Vendendor
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="relatorionf.php">
+                                <span data-feather="bar-chart-2"></span>
+                                Relatórios
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="home.php">
+                                <span data-feather="layers"></span>
+                                Integrações
                             </a>
                         </li>
                     </ul>
