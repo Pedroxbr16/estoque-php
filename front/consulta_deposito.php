@@ -30,6 +30,7 @@ include_once '../back/auth.php';
             <div class="col-md-4">
                 <label for="descricao" class="form-label">Descrição do Material:</label>
                 <input type="text" class="form-control" id="descricao" placeholder="Digite a descrição">
+                <div class="resultados"></div>
             </div>
             <div class="col-md-4">
                 <label for="tipo_material" class="form-label">Tipo de Material:</label>
@@ -46,6 +47,10 @@ include_once '../back/auth.php';
             <div class="col-12">
                 <button type="button" id="buscarButton" class="btn btn-primary w-100">Buscar</button>
             </div>
+               <!-- Botão para exportar para PDF -->
+        <div class="text-end mb-3">
+            <button onclick="exportToPDF()" class="btn btn-danger">Exportar para PDF</button>
+        </div>
         </form>
 
         <!-- Tabela de Resultados -->
@@ -75,11 +80,10 @@ include_once '../back/auth.php';
 
     </div>
 
-    <script src="../assets/js/consulta-deposito.js">
-        
-    </script>
+
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../assets/js/consulta-deposito.js"></script>
 </body>
 
 </html>

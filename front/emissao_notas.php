@@ -147,8 +147,9 @@ $produtos = $estoqueController->buscarMateriais();
             table {
                 font-size: 0.8em;
             }
-            
-            th, td {
+
+            th,
+            td {
                 padding: 8px;
             }
         }
@@ -163,7 +164,7 @@ $produtos = $estoqueController->buscarMateriais();
 
         <!-- Exibe a mensagem usando SweetAlert, se houver uma mensagem presente na URL -->
         <script>
-            document.addEventListener('DOMContentLoaded', function () {
+            document.addEventListener('DOMContentLoaded', function() {
                 const urlParams = new URLSearchParams(window.location.search);
                 const message = urlParams.get('message');
 
@@ -182,8 +183,8 @@ $produtos = $estoqueController->buscarMateriais();
             });
         </script>
 
-<form action="../back/estoqueController.php?action=emitirNota" method="POST" onsubmit="prepareFormData(); gerarPDF(); ">
-<h2>Seleção de Produtos</h2>
+        <form action="../back/estoqueController.php?action=emitirNota" method="POST" onsubmit="prepareFormData(); gerarPDF(); ">
+            <h2>Seleção de Produtos</h2>
 
             <label for="produto">Produto:</label>
             <select id="produto" name="produto_id">
@@ -229,66 +230,72 @@ $produtos = $estoqueController->buscarMateriais();
         let produtos = []; // Array para armazenar os produtos adicionados
 
         function adicionarProduto() {
-    const produtoSelect = document.getElementById("produto");
-    const quantidade = parseInt(document.getElementById("quantidade").value);
-    const produtoId = produtoSelect.value;
+            const produtoSelect = document.getElementById("produto");
+            const quantidade = parseInt(document.getElementById("quantidade").value);
+            const produtoId = produtoSelect.value;
 
-    // Realizar uma verificação de estoque usando uma requisição AJAX
-    fetch(`../back/estoqueController.php?action=verificarEstoque&produto_id=${produtoId}&quantidade=${quantidade}`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // Se houver estoque suficiente, adicionar o produto
-                const produtoSelecionado = produtoSelect.options[produtoSelect.selectedIndex];
-                const nome = produtoSelecionado.text.split(" - ")[0];
-                const preco = parseFloat(produtoSelecionado.getAttribute("data-preco"));
+            // Verifica se o produto já existe no array 'produtos'
+            let quantidadeTotalSolicitada = quantidade;
+            const produtoExistente = produtos.find(produto => produto.produto_id === produtoId);
+            if (produtoExistente) {
+                quantidadeTotalSolicitada += produtoExistente.quantidade; // Soma a quantidade existente na nota com a nova solicitada
+            }
 
-                if (isNaN(preco)) {
+            // Realizar uma verificação de estoque usando uma requisição AJAX
+            fetch(`../back/estoqueController.php?action=verificarEstoque&produto_id=${produtoId}&quantidade=${quantidadeTotalSolicitada}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Se houver estoque suficiente, adicionar o produto
+                        const produtoSelecionado = produtoSelect.options[produtoSelect.selectedIndex];
+                        const nome = produtoSelecionado.text.split(" - ")[0];
+                        const preco = parseFloat(produtoSelecionado.getAttribute("data-preco"));
+
+                        if (isNaN(preco)) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Erro!',
+                                text: 'Preço não encontrado para o produto selecionado.'
+                            });
+                            return;
+                        }
+
+                        if (produtoExistente) {
+                            // Atualiza a quantidade e o subtotal do produto existente
+                            produtoExistente.quantidade += quantidade;
+                            produtoExistente.subtotal = produtoExistente.quantidade * produtoExistente.preco;
+                        } else {
+                            // Adiciona o novo produto ao array
+                            const subtotal = preco * quantidade;
+                            produtos.push({
+                                produto_id: produtoId,
+                                nome,
+                                quantidade,
+                                preco,
+                                subtotal
+                            });
+                        }
+
+                        atualizarTabela();
+                    } else {
+                        // Se não houver estoque suficiente, exibir um alerta
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Estoque Insuficiente',
+                            text: 'Não há quantidade suficiente em estoque para este produto.'
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro ao verificar o estoque:', error);
                     Swal.fire({
                         icon: 'error',
                         title: 'Erro!',
-                        text: 'Preço não encontrado para o produto selecionado.'
+                        text: 'Erro ao verificar o estoque. Tente novamente.'
                     });
-                    return;
-                }
-
-                // Verifica se o produto já existe no array
-                const produtoExistente = produtos.find(produto => produto.produto_id === produtoId);
-                if (produtoExistente) {
-                    // Atualiza a quantidade e o subtotal do produto existente
-                    produtoExistente.quantidade += quantidade;
-                    produtoExistente.subtotal = produtoExistente.quantidade * produtoExistente.preco;
-                } else {
-                    // Adiciona o novo produto ao array
-                    const subtotal = preco * quantidade;
-                    produtos.push({
-                        produto_id: produtoId,
-                        nome,
-                        quantidade,
-                        preco,
-                        subtotal
-                    });
-                }
-
-                atualizarTabela();
-            } else {
-                // Se não houver estoque suficiente, exibir um alerta
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Estoque Insuficiente',
-                    text: 'Não há quantidade suficiente em estoque para este produto.'
                 });
-            }
-        })
-        .catch(error => {
-            console.error('Erro ao verificar o estoque:', error);
-            Swal.fire({
-                icon: 'error',
-                title: 'Erro!',
-                text: 'Erro ao verificar o estoque. Tente novamente.'
-            });
-        });
-}
+        }
+
 
         function atualizarTabela() {
             const tabela = document.getElementById("tabela-itens");
@@ -323,12 +330,17 @@ $produtos = $estoqueController->buscarMateriais();
         function prepareFormData() {
             document.getElementById("itens").value = JSON.stringify(produtos);
         }
+
         function gerarPDF() {
-            const { jsPDF } = window.jspdf;
+            const {
+                jsPDF
+            } = window.jspdf;
             const doc = new jsPDF();
 
             doc.setFontSize(16);
-            doc.text("Nota Fiscal", 105, 10, { align: "center" });
+            doc.text("Nota Fiscal", 105, 10, {
+                align: "center"
+            });
             doc.setFontSize(12);
             doc.text("Produto", 10, 30);
             doc.text("Quantidade", 80, 30);

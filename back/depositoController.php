@@ -19,7 +19,6 @@ class EstoqueController {
 
         // Retorna JSON válido
         header('Content-Type: application/json');
-        ob_clean(); // Limpa qualquer saída extra
         echo json_encode($result);
         exit;
     } catch (PDOException $e) {
@@ -28,6 +27,7 @@ class EstoqueController {
         exit;
     }
 }
+
 
 // Listar Segmentos
 public function listarSegmentos() {
@@ -40,7 +40,6 @@ public function listarSegmentos() {
 
         // Retorna JSON válido
         header('Content-Type: application/json');
-        ob_clean(); // Limpa qualquer saída extra
         echo json_encode($result);
         exit;
     } catch (PDOException $e) {
@@ -54,7 +53,6 @@ public function listarSegmentos() {
 public function listarMateriais($pagina = 1, $itensPorPagina = 10) {
     try {
         $conn = getConnection();
-
         $offset = ($pagina - 1) * $itensPorPagina;
 
         $sql = "SELECT * FROM estoque LIMIT :limit OFFSET :offset";
@@ -69,17 +67,20 @@ public function listarMateriais($pagina = 1, $itensPorPagina = 10) {
         $totalItens = $conn->query("SELECT COUNT(*) FROM estoque")->fetchColumn();
         $totalPaginas = ceil($totalItens / $itensPorPagina);
 
-        return [
+        header('Content-Type: application/json');
+        echo json_encode([
             'materiais' => $materiais,
             'totalPaginas' => $totalPaginas,
             'paginaAtual' => $pagina
-        ];
+        ]);
+        exit;
     } catch (PDOException $e) {
         http_response_code(500);
         echo json_encode(['error' => $e->getMessage()]);
         exit;
     }
 }
+
 
 
 
@@ -125,6 +126,11 @@ function verificarEstoque($produtoId) {
 
 
 
+
+
+
+
+
 // Verifica se a ação é "listarMateriais" e chama a função
 if (isset($_GET['action']) && $_GET['action'] === 'listarMateriais') {
     $controller = new EstoqueController();
@@ -138,19 +144,15 @@ if (isset($_GET['action'])) {
         case 'listarMateriais':
             $pagina = isset($_GET['pagina']) ? (int)$_GET['pagina'] : 1;
             $itensPorPagina = isset($_GET['itensPorPagina']) ? (int)$_GET['itensPorPagina'] : 10;
-        
-            header('Content-Type: application/json');
             echo json_encode($controller->listarMateriais($pagina, $itensPorPagina));
             break;
         
 
         case 'listarTiposMaterial':
-            header('Content-Type: application/json');
             echo json_encode($controller->listarTiposMaterial());
             break;
 
         case 'listarSegmentos':
-            header('Content-Type: application/json');
             echo json_encode($controller->listarSegmentos());
             break;
 

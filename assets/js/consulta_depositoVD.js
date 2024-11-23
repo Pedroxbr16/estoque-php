@@ -35,10 +35,7 @@ document.addEventListener('DOMContentLoaded', function () {
                             <td>${material.estoque_seguranca}</td>
                             <td>${material.tipo_material}</td>
                             <td>${material.segmento}</td>
-                            <td>
-                                <button class="btn btn-primary btn-sm editar-produto" data-id="${material.id}">Editar</button>
-                                <button class="btn btn-danger btn-sm excluir-btn" data-id="${material.id}">Excluir</button>
-                            </td>
+                        
                         `;
                         tbody.appendChild(row);
                     });
@@ -65,74 +62,6 @@ document.addEventListener('DOMContentLoaded', function () {
             });
             pagination.appendChild(button);
         }
-    }
-
-    // Adicionar evento para excluir material
-    function adicionarEventosExcluir() {
-        document.querySelectorAll('.excluir-btn').forEach(button => {
-            button.addEventListener('click', function () {
-                const id = this.getAttribute('data-id');
-                Swal.fire({
-                    title: 'Tem certeza?',
-                    text: "Você não poderá reverter isso!",
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#3085d6',
-                    cancelButtonColor: '#d33',
-                    confirmButtonText: 'Sim, excluir!',
-                    cancelButtonText: 'Cancelar'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        excluirMaterial(id);
-                    }
-                });
-            });
-        });
-    }
-
-    // Função para excluir material
-    function excluirMaterial(id) {
-        const url = `../back/controller/consulta_deposito.php?action=excluir&id=${id}`;
-
-        fetch(url, {
-            method: 'DELETE'
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                Swal.fire(
-                    'Excluído!',
-                    'O material foi excluído com sucesso.',
-                    'success'
-                );
-                carregarMateriais(paginaAtual);
-            } else {
-                Swal.fire(
-                    'Erro!',
-                    'Erro ao excluir material.',
-                    'error'
-                );
-            }
-        })
-        .catch(error => {
-            Swal.fire(
-                'Erro!',
-                'Erro ao excluir material: ' + error.message,
-                'error'
-            );
-        });
-    }
-
-    // Adicionar evento para editar material
-    function adicionarEventosEditar() {
-        document.querySelectorAll('.editar-produto').forEach(button => {
-            button.addEventListener('click', function () {
-                const id = this.getAttribute('data-id');
-                // Aqui você pode redirecionar para uma página de edição ou abrir um modal para editar os dados
-                // Exemplo de redirecionamento:
-                window.location.href = `/estoque-php/front/editar-pdt.php?id=${id}`;
-            });
-        });
     }
 
     // Evento para o botão de buscar
@@ -170,48 +99,7 @@ document.addEventListener('DOMContentLoaded', function () {
             .catch(error => console.error('Erro ao carregar segmentos:', error));
     }
 
-    function exportToPDF() {
-        const {
-            jsPDF
-        } = window.jspdf;
-        const doc = new jsPDF();
-
-        // Adicionando título ao PDF
-        doc.setFontSize(18);
-        doc.text("Relatório de Estoque", 14, 20);
-
-        // Adicionando tabela ao PDF
-        let rows = [];
-        const table = document.getElementById("relatorioTable");
-        for (let i = 1; i < table.rows.length; i++) {
-            let row = [];
-            for (let j = 0; j < table.rows[i].cells.length; j++) {
-                row.push(table.rows[i].cells[j].innerText);
-            }
-            rows.push(row);
-        }
-
-        // Configuração de largura das colunas
-        const columnWidths = [35, 25, 20, 30, 25, 30, 30, 30];
-        doc.autoTable({
-            head: [
-                ["Descrição", "Unidade de Medida", "Quantidade", "Depósito", "Estoque Mínimo", "Estoque de Segurança", "Tipo de Material", "Segmento"]
-            ],
-            body: rows,
-            startY: 30,
-            columnStyles: {
-                0: {
-                    cellWidth: columnWidths[0]
-                }
-            },
-        });
-
-        // Salva o PDF
-        doc.save("Relatorio_Estoque.pdf");
-    }
-
- 
-    
+   
 
     // Carregar os dados iniciais
     carregarFiltros();
