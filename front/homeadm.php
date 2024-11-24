@@ -1,3 +1,12 @@
+
+<?php
+session_start();
+require '../back/auth.php'; // Caminho para o arquivo auth.php
+
+
+
+
+?>
 <!DOCTYPE html>
 <html lang="pt-BR">
 
@@ -65,7 +74,7 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="home.php">
+                            <a class="nav-link" href="homeadmEV.php">
                                 <span data-feather="layers"></span>
                                 Integrações
                             </a>

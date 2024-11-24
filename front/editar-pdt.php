@@ -1,5 +1,23 @@
+
+
+<?php
+session_start();
+require '../back/auth.php'; // Caminho para o arquivo auth.php
+
+include('../back/db.php');
+include_once('../back/estoqueController.php');
+
+// Inicializa o controlador de estoque
+$estoqueController = new EstoqueController();
+$produtos = $estoqueController->buscarMateriais();
+
+?>
 <!DOCTYPE html>
 <html lang="pt-BR">
+<script>
+    let homeUrl = '<?php echo $_SESSION['homeUrl'] ?? ""; ?>';
+</script>
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,8 +25,10 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
+
 <body>
     <div class="container mt-5">
+    <button class="back-button">Voltar para Home</button>
         <h1 class="text-center mb-4">Editar Produto</h1>
 
         <!-- Formulário de Edição -->
@@ -76,5 +96,8 @@
         </form>
     </div>
     <script src="../assets/js/editar-pdt.js"></script>
+    
+<script src="../assets/js/voltar_home.js"></script>
 </body>
+
 </html>

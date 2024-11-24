@@ -53,20 +53,22 @@ class Usuario {
                 $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
 
                 if ($usuario && password_verify($password, $usuario['password'])) {
+                    // Ajuste os campos conforme os nomes no banco de dados
+                    $_SESSION['usuario_id'] = $usuario['id_usuario'];
+                    $_SESSION['usuario_nome'] = $usuario['nome'];
+                    $_SESSION['usuario_funcao'] = $usuario['funcao'];
+                    $_SESSION['usuarioId'] = $usuario['id_usuario']; // Define o ID do usuário na sessão
                     
-
-                      // Ajuste os campos conforme os nomes no banco de dados
-                      $_SESSION['usuario_id'] = $usuario['id_usuario'];
-                      $_SESSION['usuario_nome'] = $usuario['nome'];
-                      $_SESSION['usuario_funcao'] = $usuario['funcao'];
-                      $_SESSION['usuarioId'] = $usuario['id_usuario']; // Define o ID do usuário na sessão
-                     
-      
-                    // Redirecionamento com base na função
+                    // Definir URL da home com base na função do usuário
                     if ($usuario['funcao'] == 'Venda') {
+                        $_SESSION['homeUrl'] = '../front/home_vendas.php';
                         header('Location: ../front/home_vendas.php');
                     } elseif ($usuario['funcao'] == 'Estoque') {
+                        $_SESSION['homeUrl'] = '../front/home.php';
                         header('Location: ../front/home.php');
+                    } elseif ($usuario['funcao'] == 'Administrador') {
+                        $_SESSION['homeUrl'] = '../front/homeadmEV.php';
+                        header('Location: ../front/homeadmEV.php');
                     } else {
                         header('Location: ../index.php?error=no_funcao');
                     }
@@ -75,8 +77,6 @@ class Usuario {
                     header('Location: ../index.php?error=invalid_credentials');
                     exit();
                 }
-                
-                
             } catch (PDOException $e) {
                 echo "Erro ao validar login: " . $e->getMessage();
             }

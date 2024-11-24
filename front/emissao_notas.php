@@ -8,9 +8,14 @@ include_once('../back/estoqueController.php');
 // Inicializa o controlador de estoque
 $estoqueController = new EstoqueController();
 $produtos = $estoqueController->buscarMateriais();
+
 ?>
 
 <!DOCTYPE html>
+<script>
+    let homeUrl = '<?php echo $_SESSION['homeUrl'] ?? ""; ?>';
+</script>
+
 <html lang="pt-br">
 
 <head>
@@ -29,7 +34,8 @@ $produtos = $estoqueController->buscarMateriais();
 
 <body>
     <div class="container">
-        <button class="back-button" onclick="window.location.href='home_vendas.php'">Voltar para Home</button>
+    <button class="back-button">Voltar para Home</button>
+
 
         <h1>Emissão de Nota Fiscal</h1>
 
@@ -98,6 +104,9 @@ $produtos = $estoqueController->buscarMateriais();
     </div>
 
     <script src="../assets/js/editar-pdt.js"></script>
+   
+<script src="../assets/js/voltar_home.js"></script>
+
 </body>
 
 </html>

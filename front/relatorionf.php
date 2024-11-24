@@ -104,9 +104,9 @@ require_once '../back/db.php'; // Certifique-se de ajustar o caminho para o arqu
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#">
-                                <span data-feather="file-text"></span>
-                                Vendas do final de ano
+                            <a class="nav-link" href="homeadmEV.php">
+                                <span data-feather="layers"></span>
+                                Integrações
                             </a>
                         </li>
                     </ul>
@@ -293,6 +293,11 @@ require_once '../back/db.php'; // Certifique-se de ajustar o caminho para o arqu
                     });
                 });
             </script>
+            <script>
+    let homeUrl = '<?php echo $_SESSION['homeUrl'] ?? ""; ?>';
+</script>
+<script src="../assets/js/voltar_home.js"></script>
+
 </body>
 
 </html>

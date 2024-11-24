@@ -137,6 +137,7 @@ if (isset($_GET['error']) && $_GET['error'] == 'email_exists') {
         <select class="woocommerce-Input woocommerce-Input--text input-text" name="sr_funcao" id="reg_sr_funcao" required>
             <option value="">Selecione uma função</option>
             <option value="Venda">Venda</option>
+            <option value="Estoque">Administrador</option>
             <option value="Estoque">Estoque</option>
         </select>
     </p>

@@ -12,14 +12,15 @@ if (!isset($_SESSION['usuario_id'])) {
 
 // Defina permissões para cada página
 $permissoes = [
-    'home.php' => ['Estoque', 'Admin'],
-    'cadastro_estoque.php' => ['Estoque', 'Admin'],  // Apenas funções "Estoque" e "Admin" podem acessar
-    'consulta_deposito.php' => ['Estoque', 'Venda', 'Admin'], // "Estoque", "Venda" e "Admin" podem acessar
-    'relatorio.php' => ['Admin','Estoque'],                   // Apenas "Admin" pode acessar
-    'editar_produto.php' => ['Estoque', 'Admin'],    // Apenas "Estoque" e "Admin" podem acessar
-    'emissao_notas.php' => ['Admin', 'Venda'],  
-    'relatorionf.php' => ['Admin', 'Venda'],
-    'homeadm.php' => ['Admin','Estoque' ],
+    'home.php' => ['Estoque', 'Administrador'],
+    'cadastro_estoque.php' => ['Estoque', 'Administrador'],  // Apenas funções "Estoque" e "Administrador" podem acessar
+    'consulta_deposito.php' => ['Estoque', 'Venda', 'Administrador'], // "Estoque", "Venda" e "Administrador" podem acessar
+    'relatorio.php' => ['Administrador','Estoque'],                   // Apenas "Administrador" pode acessar
+    'editar_produto.php' => ['Estoque', 'Administrador'],    // Apenas "Estoque" e "Administrador" podem acessar
+    'emissao_notas.php' => ['Administrador', 'Venda'],  
+    'relatorionf.php' => ['Administrador', 'Venda'],
+    'homeadm.php' => ['Administrador', ],
+    'homeadmEV.php' => ['Administrador', ],
 
        
     // Adicione outras páginas e permissões conforme necessário

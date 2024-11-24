@@ -65,9 +65,9 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="home.php">
+                            <a class="nav-link" href="homeadmEV.php">
                                 <span data-feather="layers"></span>
-                                Sistema
+                                Integrações
                             </a>
                         </li>
                     </ul>
@@ -147,6 +147,11 @@
     </script>
     <!--  <script src="../assets/js/relatorioestmodal.js"> -->
     </script>
+    <script>
+    let homeUrl = '<?php echo $_SESSION['homeUrl'] ?? ""; ?>';
+</script>
+<script src="../assets/js/voltar_home.js"></script>
+
 </body>
 
 </html>

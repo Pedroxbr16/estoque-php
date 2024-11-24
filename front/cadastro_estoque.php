@@ -19,7 +19,7 @@ require '../back/auth.php'; // Caminho para o arquivo auth.php
 
         <!-- Botão Voltar para a Home -->
         <div class="text-start mb-3">
-            <a href="home.php" class="btn btn-secondary">← Voltar para Home</a>
+        <button class="back-button">Voltar para Home</button>
         </div>
 
         <!-- Formulário para cadastro de estoque -->
@@ -102,6 +102,11 @@ require '../back/auth.php'; // Caminho para o arquivo auth.php
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="../assets/js/cadastro_estoque.js"></script>
+    <script>
+    let homeUrl = '<?php echo $_SESSION['homeUrl'] ?? ""; ?>';
+</script>
+<script src="../assets/js/voltar_home.js"></script>
+
 </body>
 
 </html>

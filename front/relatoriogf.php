@@ -98,7 +98,7 @@ session_start();
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="home.php">
+                            <a class="nav-link" href="homeadmEV.php">
                                 <span data-feather="layers"></span>
                                 Integrações
                             </a>
@@ -113,8 +113,7 @@ session_start();
                 </div>
 
                 <div class="container mt-3">
-                    <a href="home.php" class="btn btn-primary mb-3">Voltar para Home</a>
-                    <div class="container mt-5">
+                <button class="back-button">Voltar para Home</button>                    <div class="container mt-5">
                         <h3>Filtrar Gráfico de Notas Fiscais</h3>
                         <form id="filtroForm" class="mb-4">
                             <div class="row">
@@ -204,6 +203,11 @@ session_start();
         }
     }
 </script>
+<script>
+    let homeUrl = '<?php echo $_SESSION['homeUrl'] ?? ""; ?>';
+</script>
+<script src="../assets/js/voltar_home.js"></script>
+
 
 </body>
 </html>
