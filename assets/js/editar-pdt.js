@@ -1,139 +1,137 @@
-document.addEventListener("DOMContentLoaded", function () {
-    const produtoId = new URLSearchParams(window.location.search).get('id');
 
-    if (!produtoId) {
-        console.error("ID do produto não encontrado na URL.");
-        return;
+let produtos = []; // Array para armazenar os produtos adicionados
+
+function adicionarProduto() {
+    const produtoSelect = document.getElementById("produto");
+    const quantidade = parseInt(document.getElementById("quantidade").value);
+    const produtoId = produtoSelect.value;
+
+    // Verifica se o produto já existe no array 'produtos'
+    let quantidadeTotalSolicitada = quantidade;
+    const produtoExistente = produtos.find(produto => produto.produto_id === produtoId);
+    if (produtoExistente) {
+        quantidadeTotalSolicitada += produtoExistente.quantidade; // Soma a quantidade existente na nota com a nova solicitada
     }
 
-    // Buscar dados do produto para edição
-    fetch('../back/controller/editar-pdt.php?action=buscarPorId&id=' + produtoId)
-        .then(response => response.json())
-        .then(data => {
-            if (data && !data.error) {
-                // Preencher os campos do formulário com os dados do produto
-                document.getElementById('id').value = data.id;
-                document.getElementById('descricao').value = data.descricao || '';
-                document.getElementById('quantidade').value = data.quantidade || '';
-                document.getElementById('estoque_minimo').value = data.estoque_minimo || '';
-                document.getElementById('estoque_seguranca').value = data.estoque_seguranca || '';
-                document.getElementById('tipo_material').value = data.tipo_material || '';
-
-                // Preencher o campo "Unidade de Medida"
-                fetch('../back/controller/editar-pdt.php?action=listarUnidadesDeMedida')
-                    .then(response => response.json())
-                    .then(unidades => {
-                        const unidadeSelect = document.getElementById('unidade_medida');
-                        unidadeSelect.innerHTML = ''; // Limpa as opções atuais
-
-                        unidades.forEach(unidade => {
-                            const option = document.createElement('option');
-                            option.value = unidade.unidade_medida;
-                            option.textContent = unidade.unidade_medida;
-
-                            // Seleciona a unidade original
-                            if (unidade.unidade_medida === data.unidade_medida) {
-                                option.selected = true;
-                            }
-
-                            unidadeSelect.appendChild(option);
-                        });
-                    })
-                    .catch(error => console.error('Erro ao carregar unidades de medida:', error));
-
-                // Preencher o campo "Depósito"
-                fetch('../back/controller/editar-pdt.php?action=listarDepositos')
-                    .then(response => response.json())
-                    .then(depositos => {
-                        const depositoSelect = document.getElementById('deposito');
-                        depositoSelect.innerHTML = ''; // Limpa as opções atuais
-
-                        depositos.forEach(deposito => {
-                            const option = document.createElement('option');
-                            option.value = deposito.deposito;
-                            option.textContent = deposito.deposito;
-
-                            // Seleciona o depósito original
-                            if (deposito.deposito === data.deposito) {
-                                option.selected = true;
-                            }
-
-                            depositoSelect.appendChild(option);
-                        });
-                    })
-                    .catch(error => console.error('Erro ao carregar depósitos:', error));
-
-                // Preencher o campo "Segmento"
-                fetch('../back/controller/editar-pdt.php?action=listarSegmentos')
-                    .then(response => response.json())
-                    .then(segmentos => {
-                        const segmentoSelect = document.getElementById('segmento');
-                        segmentoSelect.innerHTML = ''; // Limpa as opções atuais
-
-                        segmentos.forEach(segmento => {
-                            const option = document.createElement('option');
-                            option.value = segmento.segmento;
-                            option.textContent = segmento.segmento;
-
-                            // Seleciona o segmento original
-                            if (segmento.segmento === data.segmento) {
-                                option.selected = true;
-                            }
-
-                            segmentoSelect.appendChild(option);
-                        });
-                    })
-                    .catch(error => console.error('Erro ao carregar segmentos:', error));
-            } else {
-                Swal.fire({
-                    title: "Erro!",
-                    text: "Produto não encontrado.",
-                    icon: "error",
-                });
-            }
-        })
-        .catch(error => {
-            console.error('Erro ao buscar produto:', error);
-            Swal.fire({
-                title: "Erro!",
-                text: "Erro ao buscar produto. Tente novamente.",
-                icon: "error",
-            });
-        });
-
-    // Salvar alterações do produto
-    document.getElementById('salvar').addEventListener('click', function () {
-        const formData = new FormData(document.getElementById('editar-form'));
-
-        fetch('../back/controller/editar-pdt.php?action=editar', {
-            method: 'POST',
-            body: formData
-        })
+    // Realizar uma verificação de estoque usando uma requisição AJAX
+    fetch(`../back/estoqueController.php?action=verificarEstoque&produto_id=${produtoId}&quantidade=${quantidadeTotalSolicitada}`)
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                Swal.fire({
-                    title: "Sucesso!",
-                    text: "Produto atualizado com sucesso.",
-                    icon: "success",
-                }).then(() => {
-                    window.location.href = './consulta_deposito.php';
-                });
+                // Se houver estoque suficiente, adicionar o produto
+                const produtoSelecionado = produtoSelect.options[produtoSelect.selectedIndex];
+                const nome = produtoSelecionado.text.split(" - ")[0];
+                const preco = parseFloat(produtoSelecionado.getAttribute("data-preco"));
+
+                if (isNaN(preco)) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Erro!',
+                        text: 'Preço não encontrado para o produto selecionado.'
+                    });
+                    return;
+                }
+
+                if (produtoExistente) {
+                    // Atualiza a quantidade e o subtotal do produto existente
+                    produtoExistente.quantidade += quantidade;
+                    produtoExistente.subtotal = produtoExistente.quantidade * produtoExistente.preco;
+                } else {
+                    // Adiciona o novo produto ao array
+                    const subtotal = preco * quantidade;
+                    produtos.push({
+                        produto_id: produtoId,
+                        nome,
+                        quantidade,
+                        preco,
+                        subtotal
+                    });
+                }
+
+                atualizarTabela();
             } else {
+                // Se não houver estoque suficiente, exibir um alerta
                 Swal.fire({
-                    title: "Erro!",
-                    text: "Erro ao atualizar produto. Tente novamente.",
-                    icon: "error",
+                    icon: 'error',
+                    title: 'Estoque Insuficiente',
+                    text: 'Não há quantidade suficiente em estoque para este produto.'
                 });
             }
         })
         .catch(error => {
-            console.error('Erro ao atualizar produto:', error);
+            console.error('Erro ao verificar o estoque:', error);
             Swal.fire({
-                title: "Erro!",
-                text: "Erro ao atualizar produto. Tente novamente.",
-                icon: "error",
+                icon: 'error',
+                title: 'Erro!',
+                text: 'Erro ao verificar o estoque. Tente novamente.'
             });
         });
+}
+
+
+function atualizarTabela() {
+    const tabela = document.getElementById("tabela-itens");
+    tabela.innerHTML = ""; // Limpa a tabela antes de atualizar
+    let total = 0;
+
+    // Itera sobre o array `produtos` para exibir cada item
+    produtos.forEach((produto) => {
+        total += produto.subtotal;
+        tabela.innerHTML += `
+            <tr>
+                <td>${produto.nome}</td>
+                <td>${produto.quantidade}</td>
+                <td>R$ ${produto.preco.toFixed(2)}</td>
+                <td>R$ ${produto.subtotal.toFixed(2)}</td>
+            </tr>
+        `;
     });
-});
+
+    // Atualiza o valor total na interface para visualização
+    document.getElementById("total").textContent = "R$ " + total.toFixed(2);
+
+    // Armazena os produtos no campo oculto para envio no formulário
+    document.getElementById("itens").value = JSON.stringify(produtos);
+}
+
+function resetarNota() {
+    produtos = [];
+    atualizarTabela();
+}
+
+function prepareFormData() {
+    document.getElementById("itens").value = JSON.stringify(produtos);
+}
+
+function gerarPDF() {
+    const {
+        jsPDF
+    } = window.jspdf;
+    const doc = new jsPDF();
+
+    doc.setFontSize(16);
+    doc.text("Nota Fiscal", 105, 10, {
+        align: "center"
+    });
+    doc.setFontSize(12);
+    doc.text("Produto", 10, 30);
+    doc.text("Quantidade", 80, 30);
+    doc.text("Preço Unitário", 120, 30);
+    doc.text("Subtotal", 170, 30);
+
+    let posY = 40;
+    let total = 0;
+    produtos.forEach((produto) => {
+        doc.text(produto.nome, 10, posY);
+        doc.text(String(produto.quantidade), 80, posY);
+        doc.text("R$ " + produto.preco.toFixed(2), 120, posY);
+        doc.text("R$ " + produto.subtotal.toFixed(2), 170, posY);
+        total += produto.subtotal;
+        posY += 10;
+    });
+
+    doc.setFontSize(12);
+    doc.text("Total: R$ " + total.toFixed(2), 170, posY + 10);
+
+    doc.save("nota_fiscal.pdf");
+}

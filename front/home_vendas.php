@@ -77,6 +77,10 @@ require '../back/auth.php'; // Caminho para o arquivo auth.php
                             <li>
                                 <a class="dropdown-item" href="../back/usuariocontroller.php?action=logout">Sair</a>
                             </li>
+                            <li>
+                                <a class="dropdown-item" href="relatorio_vendedor.php">Relatorio de Vendas</a>
+                            </li>
+                            
                         </ul>
                     </li>
                 </ul>

@@ -1,0 +1,42 @@
+body {
+            background: linear-gradient(to bottom, #f0f4f8, #ffffff);
+            font-family: 'Arial', sans-serif;
+            color: #333;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            text-align: center;
+            color: #004085;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        #resumo-vendas h3 {
+            font-size: 1.5rem;
+            color: #007bff;
+            margin-bottom: 15px;
+        }
+
+        #resumo-vendas p {
+            font-size: 1.1rem;
+            margin: 10px 0;
+        }
+
+        #resumo-vendas span {
+            font-weight: bold;
+            color: #0056b3;
+        }
+
+        #grafico-progresso {
+            margin-top: 20px;
+        }

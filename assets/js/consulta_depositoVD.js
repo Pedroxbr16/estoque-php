@@ -40,8 +40,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         tbody.appendChild(row);
                     });
 
-                    adicionarEventosExcluir();
-                    adicionarEventosEditar();
+                   
                 }
 
                 atualizarPaginacao(data.totalPaginas, data.paginaAtual);
@@ -106,3 +105,21 @@ document.addEventListener('DOMContentLoaded', function () {
     carregarMateriais();
 
 });
+// Selecionar os cards e o input escondido
+const cards = document.querySelectorAll('.produto-card');
+const inputProdutoId = document.getElementById('produto_id');
+
+// Adicionar evento de clique em cada card
+cards.forEach(card => {
+    card.addEventListener('click', () => {
+        // Remover a seleção anterior
+        cards.forEach(c => c.classList.remove('selecionado'));
+        
+        // Adicionar classe de selecionado no card atual
+        card.classList.add('selecionado');
+        
+        // Atualizar o valor do input oculto com o ID do produto
+        inputProdutoId.value = card.dataset.produtoId;
+    });
+});
+

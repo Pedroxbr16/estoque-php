@@ -124,12 +124,13 @@ class EstoqueController {
     
             $totalNota = 0;
             $precos = []; // Cache dos preços
+    
             foreach ($produtos as $produto) {
                 $produtoId = $produto['produto_id'];
                 $quantidade = $produto['quantidade'];
     
                 if (!isset($precos[$produtoId])) {
-                    $stmt = $conn->prepare("SELECT preco FROM estoque WHERE id = ?");
+                    $stmt = $conn->prepare("SELECT descricao, quantidade, preco, estoque_minimo FROM estoque WHERE id = ?");
                     $stmt->execute([$produtoId]);
                     $produtoData = $stmt->fetch(PDO::FETCH_ASSOC);
     
@@ -138,12 +139,19 @@ class EstoqueController {
                     }
     
                     $precos[$produtoId] = $produtoData['preco'];
+                    $estoqueAtual = $produtoData['quantidade'];
+    
+                    // Verifica se há estoque suficiente para cada produto
+                    if ($estoqueAtual < $quantidade) {
+                        throw new Exception("Estoque insuficiente para o produto ID: $produtoId");
+                    }
                 }
     
                 $subtotal = $quantidade * $precos[$produtoId];
                 $totalNota += $subtotal;
             }
     
+            // Inserir a nota fiscal na tabela 'notas'
             $stmt = $conn->prepare("INSERT INTO notas (usuario_id, data_venda, hora_venda, total_venda) VALUES (?, CURDATE(), CURTIME(), ?)");
             $stmt->execute([$usuarioId, $totalNota]);
             $notaId = $conn->lastInsertId();
@@ -154,14 +162,25 @@ class EstoqueController {
                 $preco = $precos[$produtoId];
                 $subtotal = $quantidade * $preco;
     
+                // Inserir os itens da nota fiscal na tabela 'nota_itens'
                 $stmtItem = $conn->prepare("INSERT INTO nota_itens (nota_id, produto_id, quantidade, preco_unitario, subtotal) VALUES (?, ?, ?, ?, ?)");
                 $stmtItem->execute([$notaId, $produtoId, $quantidade, $preco, $subtotal]);
     
+                // Atualizar o estoque do produto
                 $stmtEstoque = $conn->prepare("UPDATE estoque SET quantidade = quantidade - ? WHERE id = ?");
                 $stmtEstoque->execute([$quantidade, $produtoId]);
-
-                
-
+    
+                // Registrar a venda na tabela 'vendas_diarias'
+                $stmtVenda = $conn->prepare("INSERT INTO vendas_diarias (produto_id, quantidade, preco_unitario, data_venda) VALUES (?, ?, ?, NOW())");
+                $stmtVenda->execute([$produtoId, $quantidade, $preco]);
+    
+                // Registra notificação se o estoque estiver abaixo do estoque mínimo
+                $novaQuantidade = $estoqueAtual - $quantidade;
+                if ($novaQuantidade < $produtoData['estoque_minimo']) {
+                    $mensagem = "O produto {$produtoData['descricao']} está abaixo do estoque mínimo.";
+                    $stmtNotificacao = $conn->prepare("INSERT INTO notificacoes_estoque (produto_id, mensagem, data_notificacao, visualizado) VALUES (?, ?, NOW(), FALSE)");
+                    $stmtNotificacao->execute([$produtoId, $mensagem]);
+                }
             }
     
             $conn->commit();
@@ -171,6 +190,8 @@ class EstoqueController {
             return ['success' => false, 'message' => $e->getMessage()];
         }
     }
+    
+    
     
     public function verificarEstoque($produtoId, $quantidadeSolicitada) {
         $conn = getConnection();
@@ -237,6 +258,9 @@ class EstoqueController {
             throw new Exception("Erro ao listar tipos de material: " . $e->getMessage());
         }
     }
+
+   
+    
     
 }
 
