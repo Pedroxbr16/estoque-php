@@ -7,7 +7,7 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
 class RelatorioVendedorController {
-    public function buscarVendasPorPeriodo($usuarioId, $tipoRelatorio) {
+    public function buscarVendasPorPeriodo($usuarioId, $tipoRelatorio, $ano = null, $mes = null) {
         $conn = getConnection();
         $resultado = [];
 
@@ -37,19 +37,21 @@ class RelatorioVendedorController {
                 $resultado['vendas_diarias'] = $vendasPorDia;
 
             } elseif ($tipoRelatorio === 'mensal') {
-                // Total do mês atual
+                // Total do mês selecionado ou atual
+                $ano = $ano ?? date('Y');
+                $mes = $mes ?? date('m');
                 $stmtMes = $conn->prepare("SELECT SUM(total_venda) AS total_mes
                                            FROM notas
-                                           WHERE usuario_id = ? AND MONTH(data_venda) = MONTH(CURDATE()) AND YEAR(data_venda) = YEAR(CURDATE())");
-                $stmtMes->execute([$usuarioId]);
+                                           WHERE usuario_id = ? AND MONTH(data_venda) = ? AND YEAR(data_venda) = ?");
+                $stmtMes->execute([$usuarioId, $mes, $ano]);
                 $resultado['total_mes'] = $stmtMes->fetch(PDO::FETCH_ASSOC)['total_mes'] ?? 0;
 
-                // Vendas por semana no mês atual
+                // Vendas por semana no mês selecionado ou atual
                 $stmtVendasSemanais = $conn->prepare("SELECT WEEK(data_venda, 1) AS semana, SUM(total_venda) AS total_semana
                                                       FROM notas
-                                                      WHERE usuario_id = ? AND MONTH(data_venda) = MONTH(CURDATE()) AND YEAR(data_venda) = YEAR(CURDATE())
+                                                      WHERE usuario_id = ? AND MONTH(data_venda) = ? AND YEAR(data_venda) = ?
                                                       GROUP BY semana");
-                $stmtVendasSemanais->execute([$usuarioId]);
+                $stmtVendasSemanais->execute([$usuarioId, $mes, $ano]);
                 $vendasSemanais = $stmtVendasSemanais->fetchAll(PDO::FETCH_ASSOC);
 
                 // Preencher vendas semanais no array de 6 semanas, com valor padrão 0
@@ -61,19 +63,20 @@ class RelatorioVendedorController {
                 $resultado['vendas_semanais'] = $vendasPorSemana;
 
             } elseif ($tipoRelatorio === 'anual') {
-                // Total do ano atual
+                // Total do ano selecionado ou atual
+                $ano = $ano ?? date('Y');
                 $stmtAno = $conn->prepare("SELECT SUM(total_venda) AS total_ano
                                            FROM notas
-                                           WHERE usuario_id = ? AND YEAR(data_venda) = YEAR(CURDATE())");
-                $stmtAno->execute([$usuarioId]);
+                                           WHERE usuario_id = ? AND YEAR(data_venda) = ?");
+                $stmtAno->execute([$usuarioId, $ano]);
                 $resultado['total_ano'] = $stmtAno->fetch(PDO::FETCH_ASSOC)['total_ano'] ?? 0;
 
-                // Vendas mensais do ano atual
+                // Vendas mensais do ano selecionado ou atual
                 $stmtVendasMensais = $conn->prepare("SELECT MONTH(data_venda) AS mes, SUM(total_venda) AS total_mes
                                                      FROM notas
-                                                     WHERE usuario_id = ? AND YEAR(data_venda) = YEAR(CURDATE())
+                                                     WHERE usuario_id = ? AND YEAR(data_venda) = ?
                                                      GROUP BY mes");
-                $stmtVendasMensais->execute([$usuarioId]);
+                $stmtVendasMensais->execute([$usuarioId, $ano]);
                 $vendasMensais = $stmtVendasMensais->fetchAll(PDO::FETCH_ASSOC);
 
                 // Preencher vendas mensais no array de 12 meses, com valor padrão 0
@@ -104,9 +107,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['action']) && $_GET['act
 
         $usuarioId = $_SESSION['usuarioId'];
         $tipoRelatorio = $_GET['tipo'] ?? 'semanal';
+        $ano = $_GET['ano'] ?? null;
+        $mes = $_GET['mes'] ?? null;
 
         $relatorioController = new RelatorioVendedorController();
-        $resumoVendas = $relatorioController->buscarVendasPorPeriodo($usuarioId, $tipoRelatorio);
+        $resumoVendas = $relatorioController->buscarVendasPorPeriodo($usuarioId, $tipoRelatorio, $ano, $mes);
 
         header('Content-Type: application/json');
         echo json_encode($resumoVendas);

@@ -2,8 +2,18 @@ document.addEventListener("DOMContentLoaded", function () {
     // Função para buscar resumo de vendas do backend
     function buscarResumoVendas() {
         const tipoRelatorio = document.getElementById("tipo-relatorio").value;
+        const anoRelatorio = document.getElementById("ano-relatorio") ? document.getElementById("ano-relatorio").value : new Date().getFullYear();
+        const mesRelatorio = document.getElementById("mes-relatorio") ? document.getElementById("mes-relatorio").value : (new Date().getMonth() + 1);
 
-        fetch(`../back/controller/relatorio_vendedor.php?action=resumoVendas&tipo=${tipoRelatorio}`)
+        let url = `../back/controller/relatorio_vendedor.php?action=resumoVendas&tipo=${tipoRelatorio}`;
+
+        if (tipoRelatorio === "anual") {
+            url += `&ano=${anoRelatorio}`;
+        } else if (tipoRelatorio === "mensal") {
+            url += `&ano=${anoRelatorio}&mes=${mesRelatorio}`;
+        }
+
+        fetch(url)
             .then((response) => {
                 if (!response.ok) {
                     throw new Error("Erro ao buscar dados do servidor");
@@ -29,6 +39,8 @@ document.addEventListener("DOMContentLoaded", function () {
                     document.getElementById("resumo-semana").style.display = 'block';
                     document.getElementById("resumo-mes").style.display = 'none';
                     document.getElementById("resumo-anual").style.display = 'none';
+                    document.getElementById("filtro-ano").style.display = 'none';
+                    document.getElementById("filtro-mes").style.display = 'none';
                 } else if (tipoRelatorio === "mensal") {
                     totalMes = data.total_mes ? parseFloat(data.total_mes) : 0;
                     vendasMensais = data.vendas_semanais || new Array(4).fill(0);
@@ -39,8 +51,10 @@ document.addEventListener("DOMContentLoaded", function () {
                     document.getElementById("resumo-semana").style.display = 'none';
                     document.getElementById("resumo-mes").style.display = 'block';
                     document.getElementById("resumo-anual").style.display = 'none';
+                    document.getElementById("filtro-ano").style.display = 'block';
+                    document.getElementById("filtro-mes").style.display = 'block';
                 } else if (tipoRelatorio === "anual") {
-                    totalAnual = data.vendas_mensais ? data.vendas_mensais.reduce((acc, val) => acc + parseFloat(val), 0) : 0;
+                    totalAnual = data.total_ano ? parseFloat(data.total_ano) : 0;
                     vendasMensais = data.vendas_mensais || new Array(12).fill(0);
                     const vendasAnualElem = document.getElementById("vendas-anual");
                     if (vendasAnualElem) {
@@ -49,6 +63,8 @@ document.addEventListener("DOMContentLoaded", function () {
                     document.getElementById("resumo-semana").style.display = 'none';
                     document.getElementById("resumo-mes").style.display = 'none';
                     document.getElementById("resumo-anual").style.display = 'block';
+                    document.getElementById("filtro-ano").style.display = 'block';
+                    document.getElementById("filtro-mes").style.display = 'none';
                 }
 
                 // Atualizar o gráfico de progresso
@@ -57,6 +73,35 @@ document.addEventListener("DOMContentLoaded", function () {
             .catch((error) => {
                 console.error("Erro ao buscar o resumo de vendas:", error);
             });
+    }
+
+    // Função para preencher os filtros de ano e mês
+    function preencherFiltros() {
+        // Preencher o filtro de ano
+        const anoAtual = new Date().getFullYear();
+        const selectAno = document.getElementById("ano-relatorio");
+        if (selectAno) {
+            selectAno.innerHTML = '';
+            for (let ano = anoAtual; ano >= anoAtual - 5; ano--) {
+                const option = document.createElement("option");
+                option.value = ano;
+                option.textContent = ano;
+                selectAno.appendChild(option);
+            }
+        }
+
+        // Preencher o filtro de mês
+        const selectMes = document.getElementById("mes-relatorio");
+        if (selectMes) {
+            selectMes.innerHTML = '';
+            const meses = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+            meses.forEach((mes, index) => {
+                const option = document.createElement("option");
+                option.value = index + 1;
+                option.textContent = mes;
+                selectMes.appendChild(option);
+            });
+        }
     }
 
     // Função para atualizar o gráfico de progresso
@@ -84,9 +129,6 @@ document.addEventListener("DOMContentLoaded", function () {
             ];
             datasetProgresso = vendasMensais;
         }
-
-        console.log("Labels:", labels); // Debug - Verificar labels
-        console.log("Dataset de progresso:", datasetProgresso); // Debug - Verificar dados do gráfico
 
         // Criar o gráfico
         window.graficoMeta = new Chart(ctx, {
@@ -134,9 +176,15 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // Buscar resumo ao carregar a página
+    // Inicializar
+    preencherFiltros();
     buscarResumoVendas();
 
-    // Adicionar evento ao filtro de relatório
-    document.getElementById("tipo-relatorio").addEventListener("change", buscarResumoVendas);
+    // Adicionar eventos aos filtros de relatório
+    document.getElementById("tipo-relatorio").addEventListener("change", () => {
+        preencherFiltros();
+        buscarResumoVendas();
+    });
+    document.getElementById("ano-relatorio")?.addEventListener("change", buscarResumoVendas);
+    document.getElementById("mes-relatorio")?.addEventListener("change", buscarResumoVendas);
 });
