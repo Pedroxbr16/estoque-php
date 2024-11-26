@@ -81,9 +81,6 @@ public function listarMateriais($pagina = 1, $itensPorPagina = 10) {
     }
 }
 
-
-
-
 public function cadastrarMaterial($descricao, $unidade, $quantidade, $deposito, $estoque_minimo, $estoque_seguranca, $tipo_material, $segmento) {
         try {
             $conn = getConnection();
@@ -123,10 +120,6 @@ function verificarEstoque($produtoId) {
 
     return $quantidade;
 }
-
-
-
-
 
 
 

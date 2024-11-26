@@ -170,17 +170,6 @@ class EstoqueController {
                 $stmtEstoque = $conn->prepare("UPDATE estoque SET quantidade = quantidade - ? WHERE id = ?");
                 $stmtEstoque->execute([$quantidade, $produtoId]);
     
-                // Registrar a venda na tabela 'vendas_diarias'
-                $stmtVenda = $conn->prepare("INSERT INTO vendas_diarias (produto_id, quantidade, preco_unitario, data_venda) VALUES (?, ?, ?, NOW())");
-                $stmtVenda->execute([$produtoId, $quantidade, $preco]);
-    
-                // Registra notificação se o estoque estiver abaixo do estoque mínimo
-                $novaQuantidade = $estoqueAtual - $quantidade;
-                if ($novaQuantidade < $produtoData['estoque_minimo']) {
-                    $mensagem = "O produto {$produtoData['descricao']} está abaixo do estoque mínimo.";
-                    $stmtNotificacao = $conn->prepare("INSERT INTO notificacoes_estoque (produto_id, mensagem, data_notificacao, visualizado) VALUES (?, ?, NOW(), FALSE)");
-                    $stmtNotificacao->execute([$produtoId, $mensagem]);
-                }
             }
     
             $conn->commit();
@@ -190,8 +179,6 @@ class EstoqueController {
             return ['success' => false, 'message' => $e->getMessage()];
         }
     }
-    
-    
     
     public function verificarEstoque($produtoId, $quantidadeSolicitada) {
         $conn = getConnection();

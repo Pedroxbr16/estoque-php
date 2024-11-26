@@ -20,10 +20,10 @@ require '../back/auth.php'; // Caminho para o arquivo auth.php
 
 <body>
 
-<?php
-// Exibir o SweetAlert se o parâmetro de erro estiver presente
-if (isset($_GET['error']) && $_GET['error'] === 'no_permission') {
-    echo "<script>
+    <?php
+    // Exibir o SweetAlert se o parâmetro de erro estiver presente
+    if (isset($_GET['error']) && $_GET['error'] === 'no_permission') {
+        echo "<script>
         document.addEventListener('DOMContentLoaded', function() {
             // Exibir o alerta com SweetAlert
             Swal.fire({
@@ -39,56 +39,58 @@ if (isset($_GET['error']) && $_GET['error'] === 'no_permission') {
             });
         });
     </script>";
-}
-?>
+    }
+    ?>
 
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <div class="container">
-        <a class="navbar-brand" href="#">Sistema de Estoque</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <!-- Links da navbar e informações do usuário -->
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ms-auto">
-                <!-- Itens existentes da navbar -->
-                <li class="nav-item">
-                    <a class="nav-link active" href="#">Início</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="cadastro_estoque.php">Cadastro de Estoque</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="consulta_deposito.php">Consulta de Estoque</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="homeadm.php">Relatórios</a>
-                </li>
-                <li class="nav-item">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">Sistema de Estoque</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <!-- Links da navbar e informações do usuário -->
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <!-- Itens existentes da navbar -->
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#">Início</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="cadastro_estoque.php">Cadastro de Estoque</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="consulta_deposito.php">Consulta de Estoque</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="homeadm.php">Relatórios</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="emissao_notas.php">Emissão de Notas</a>
                     </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="relatorionf.php">Relatório De Nota Fiscal</a>
-                </li>
-                <!-- Informações do usuário -->
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="usuarioDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <?php echo $_SESSION['usuario_nome']; ?>
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="usuarioDropdown">
-                        <li class="dropdown-item-text">
-                            <?php echo $_SESSION['usuario_funcao']; ?>
-                        </li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li>
-                            <a class="dropdown-item" href="../back/usuariocontroller.php?action=logout">Sair</a>
-                        </li>
-                    </ul>
-                </li>
-            </ul>
+                    <li class="nav-item">
+                        <a class="nav-link" href="relatorionf.php">Relatório De Nota Fiscal</a>
+                    </li>
+                    <!-- Informações do usuário -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="usuarioDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <?php echo $_SESSION['usuario_nome']; ?>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="usuarioDropdown">
+                            <li class="dropdown-item-text">
+                                <a href="painel-adm.php"> <?php echo $_SESSION['usuario_funcao']; ?></a>
+                            </li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="../back/usuariocontroller.php?action=logout">Sair</a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
         </div>
-    </div>
-</nav>
+    </nav>
 
     <?php
     if (isset($_GET['status'])) {
