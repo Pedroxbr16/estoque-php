@@ -5,7 +5,7 @@ require_once 'db.php';
 class Usuario {
 
     // Função para cadastrar um usuário
-    public function cadastrarUsuario($firstname, $lastname, $funcao, $email, $password) {
+    public function cadastrarUsuario($firstname, $lastname, $funcao_id, $email, $password) {
         $conn = getConnection();
         if ($conn) {
             try {
@@ -21,11 +21,11 @@ class Usuario {
                 }
 
                 // Inserir dados do usuário
-                $sql = "INSERT INTO usuarios (nome, sobrenome, funcao, email, password) VALUES (:firstname, :lastname, :funcao, :email, :password)";
+                $sql = "INSERT INTO usuarios (nome, sobrenome, funcao_id, email, password) VALUES (:firstname, :lastname, :funcao_id, :email, :password)";
                 $stmt = $conn->prepare($sql);
                 $stmt->bindParam(':firstname', $firstname);
                 $stmt->bindParam(':lastname', $lastname);
-                $stmt->bindParam(':funcao', $funcao);
+                $stmt->bindParam(':funcao_id', $funcao_id, PDO::PARAM_INT);
                 $stmt->bindParam(':email', $email);
                 $stmt->bindParam(':password', $password);
                 $stmt->execute();
@@ -40,9 +40,28 @@ class Usuario {
         }
     }
 
+    // Função para listar todas as funções disponíveis para o select
+    public function listarFuncoes() {
+        $conn = getConnection();
+        if ($conn) {
+            try {
+                $sql = "SELECT id, nome FROM funcoes";
+                $stmt = $conn->prepare($sql);
+                $stmt->execute();
+
+                $funcoes = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                return $funcoes;
+            } catch (PDOException $e) {
+                echo "Erro ao listar funções: " . $e->getMessage();
+            }
+        } else {
+            echo "Erro ao conectar ao banco de dados.";
+        }
+    }
+
     // Função para validar o login
     public function validarLogin($email, $password) {
-        $sql = "SELECT * FROM usuarios WHERE email = :email";
+        $sql = "SELECT u.*, f.nome AS funcao_nome FROM usuarios u INNER JOIN funcoes f ON u.funcao_id = f.id WHERE u.email = :email";
         $conn = getConnection();
         if ($conn) {
             try {
@@ -53,24 +72,33 @@ class Usuario {
                 $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
 
                 if ($usuario && password_verify($password, $usuario['password'])) {
-                    // Ajuste os campos conforme os nomes no banco de dados
+                    // Armazena os detalhes do usuário na sessão
                     $_SESSION['usuario_id'] = $usuario['id_usuario'];
                     $_SESSION['usuario_nome'] = $usuario['nome'];
-                    $_SESSION['usuario_funcao'] = $usuario['funcao'];
-                    $_SESSION['usuarioId'] = $usuario['id_usuario']; // Define o ID do usuário na sessão
-                    
+                    $_SESSION['usuario_funcao_id'] = $usuario['funcao_id']; // Armazena o ID da função
+                    $_SESSION['usuario_funcao_nome'] = $usuario['funcao_nome']; // Armazena o nome da função
+
                     // Definir URL da home com base na função do usuário
-                    if ($usuario['funcao'] == 'Venda') {
-                        $_SESSION['homeUrl'] = '../front/home_vendas.php';
-                        header('Location: ../front/home_vendas.php');
-                    } elseif ($usuario['funcao'] == 'Estoque') {
-                        $_SESSION['homeUrl'] = '../front/home.php';
-                        header('Location: ../front/home.php');
-                    } elseif ($usuario['funcao'] == 'Administrador') {
-                        $_SESSION['homeUrl'] = '../front/homeadmEV.php';
-                        header('Location: ../front/homeadmEV.php');
-                    } else {
-                        header('Location: ../index.php?error=no_funcao');
+                    switch ($usuario['funcao_id']) {
+                        case 1: // Venda
+                            $_SESSION['homeUrl'] = '../front/home_vendas.php';
+                            header('Location: ../front/home_vendas.php');
+                            break;
+                        case 2: // Administrador
+                            $_SESSION['homeUrl'] = '../front/homeadmEV.php';
+                            header('Location: ../front/homeadmEV.php');
+                            break;
+                        case 3: // Estoque
+                            $_SESSION['homeUrl'] = '../front/home.php';
+                            header('Location: ../front/home.php');
+                            break;
+                        case 4: // Supervisor (exemplo)
+                            $_SESSION['homeUrl'] = '../front/home_supervisor.php';
+                            header('Location: ../front/home_supervisor.php');
+                            break;
+                        default:
+                            header('Location: ../index.php?error=no_funcao');
+                            break;
                     }
                     exit();
                 } else {
@@ -101,11 +129,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (isset($_POST['register'])) {
         $firstname = $_POST['sr_firstname'];
         $lastname = $_POST['sr_lastname'];
-        $funcao = $_POST['sr_funcao'];
+        $funcao_id = $_POST['sr_funcao']; // Deve ser o ID da função selecionada
         $email = $_POST['email'];
         $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
 
-        $usuario->cadastrarUsuario($firstname, $lastname, $funcao, $email, $password);
+        $usuario->cadastrarUsuario($firstname, $lastname, $funcao_id, $email, $password);
     } elseif (isset($_POST['login'])) {
         $email = $_POST['email'];
         $password = $_POST['password'];
@@ -119,4 +147,10 @@ if (isset($_GET['action']) && $_GET['action'] === 'logout') {
     $usuario = new Usuario();
     $usuario->logout();
 }
-?>
+
+// Se o método for GET e a ação for listar funções
+if ($_SERVER['REQUEST_METHOD'] == 'GET' && isset($_GET['action']) && $_GET['action'] == 'listar_funcoes') {
+    $usuario = new Usuario();
+    $funcoes = $usuario->listarFuncoes();
+    echo json_encode($funcoes);
+}

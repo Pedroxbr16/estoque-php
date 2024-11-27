@@ -8,7 +8,9 @@ class ListaUsuarios {
         $conn = getConnection();
         if ($conn) {
             try {
-                $sql = "SELECT id_usuario, nome, funcao, email FROM usuarios";
+                $sql = "SELECT u.id_usuario, u.nome, u.sobrenome, u.email, f.nome AS funcao_nome 
+                        FROM usuarios u 
+                        LEFT JOIN funcoes f ON u.funcao_id = f.id";
                 $stmt = $conn->prepare($sql);
                 $stmt->execute();
 
@@ -25,16 +27,17 @@ class ListaUsuarios {
 
 class EditarUsuario {
     // Função para editar um usuário
-    public function editarUsuario($id, $nome, $sobrenome, $funcao, $email) {
+    public function editarUsuario($id, $nome, $sobrenome, $funcao_id, $email) {
         $conn = getConnection();
         if ($conn) {
             try {
-                $sql = "UPDATE usuarios SET nome = :nome, funcao = :funcao, email = :email WHERE id_usuario = :id";
+                $sql = "UPDATE usuarios SET nome = :nome, sobrenome = :sobrenome, funcao_id = :funcao_id, email = :email WHERE id_usuario = :id";
                 $stmt = $conn->prepare($sql);
-                $stmt->bindParam(':id', $id);
-                $stmt->bindParam(':nome', $nome);
-                $stmt->bindParam(':funcao', $funcao);
-                $stmt->bindParam(':email', $email);
+                $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+                $stmt->bindParam(':nome', $nome, PDO::PARAM_STR);
+                $stmt->bindParam(':sobrenome', $sobrenome, PDO::PARAM_STR);
+                $stmt->bindParam(':funcao_id', $funcao_id, PDO::PARAM_INT);
+                $stmt->bindParam(':email', $email, PDO::PARAM_STR);
                 $stmt->execute();
 
                 echo 'Usuário atualizado com sucesso';
@@ -55,7 +58,7 @@ class ExcluirUsuario {
             try {
                 $sql = "DELETE FROM usuarios WHERE id_usuario = :id";
                 $stmt = $conn->prepare($sql);
-                $stmt->bindParam(':id', $id);
+                $stmt->bindParam(':id', $id, PDO::PARAM_INT);
                 $stmt->execute();
 
                 echo 'Usuário excluído com sucesso';
@@ -74,7 +77,7 @@ class ListaFuncoes {
         $conn = getConnection();
         if ($conn) {
             try {
-                $sql = "SELECT DISTINCT funcao FROM usuarios";
+                $sql = "SELECT id, nome FROM funcoes";
                 $stmt = $conn->prepare($sql);
                 $stmt->execute();
 
@@ -108,10 +111,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $id = $_POST['id'];
         $nome = $_POST['nome'];
         $sobrenome = $_POST['sobrenome'];
-        $funcao = $_POST['funcao'];
+        $funcao_id = $_POST['funcao_id']; // Agora utilizamos o funcao_id
         $email = $_POST['email'];
 
-        $editarUsuario->editarUsuario($id, $nome, $sobrenome, $funcao, $email);
+        $editarUsuario->editarUsuario($id, $nome, $sobrenome, $funcao_id, $email);
     } elseif (isset($_POST['delete'])) {
         $excluirUsuario = new ExcluirUsuario();
         $id = $_POST['id'];

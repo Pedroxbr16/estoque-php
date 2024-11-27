@@ -1,9 +1,10 @@
 <?php
+session_start();
+require_once __DIR__ . '/../db.php';
+
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
-
-require_once __DIR__ . '/../db.php';
 
 class EditarProdutoController {
 
@@ -30,12 +31,12 @@ class EditarProdutoController {
         }
     }
 
-    // Função para listar depósitos
+    // Função para listar depósitos dinamicamente
     public function listarDepositos() {
         header('Content-Type: application/json');
         try {
             $conn = getConnection();
-            $sql = "SELECT DISTINCT deposito FROM estoque";
+            $sql = "SELECT id, descricao FROM deposito ORDER BY descricao ASC";
             $stmt = $conn->prepare($sql);
             $stmt->execute();
             $depositos = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -47,12 +48,12 @@ class EditarProdutoController {
         }
     }
 
-    // Função para listar segmentos
+    // Função para listar segmentos dinamicamente
     public function listarSegmentos() {
         header('Content-Type: application/json');
         try {
             $conn = getConnection();
-            $sql = "SELECT DISTINCT segmento FROM estoque";
+            $sql = "SELECT id, descricao FROM segmento ORDER BY descricao ASC";
             $stmt = $conn->prepare($sql);
             $stmt->execute();
             $segmentos = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -84,7 +85,6 @@ class EditarProdutoController {
 
             $stmt->execute();
             
-
             echo json_encode(['success' => true]);
         } catch (PDOException $e) {
             http_response_code(500);
@@ -92,22 +92,39 @@ class EditarProdutoController {
         }
     }
 
-    // Função para listar unidades de medida
-public function listarUnidadesDeMedida() {
-    header('Content-Type: application/json');
-    try {
-        $conn = getConnection();
-        $sql = "SELECT DISTINCT unidade_medida FROM estoque";
-        $stmt = $conn->prepare($sql);
-        $stmt->execute();
-        $unidades = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    // Função para listar unidades de medida dinamicamente
+    public function listarUnidadesDeMedida() {
+        header('Content-Type: application/json');
+        try {
+            $conn = getConnection();
+            $sql = "SELECT id, descricao FROM unidade_medida ORDER BY descricao ASC";
+            $stmt = $conn->prepare($sql);
+            $stmt->execute();
+            $unidades = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        echo json_encode($unidades);
-    } catch (PDOException $e) {
-        http_response_code(500);
-        echo json_encode(['error' => $e->getMessage()]);
+            echo json_encode($unidades);
+        } catch (PDOException $e) {
+            http_response_code(500);
+            echo json_encode(['error' => $e->getMessage()]);
+        }
     }
-}
+
+    // Função para listar tipos de material dinamicamente
+    public function listarTiposDeMaterial() {
+        header('Content-Type: application/json');
+        try {
+            $conn = getConnection();
+            $sql = "SELECT id, descricao FROM tipo_material ORDER BY descricao ASC";
+            $stmt = $conn->prepare($sql);
+            $stmt->execute();
+            $tipos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            echo json_encode($tipos);
+        } catch (PDOException $e) {
+            http_response_code(500);
+            echo json_encode(['error' => $e->getMessage()]);
+        }
+    }
 }
 
 if (isset($_GET['action'])) {
@@ -139,10 +156,14 @@ if (isset($_GET['action'])) {
             $segmento = isset($_POST['segmento']) ? $_POST['segmento'] : '';
             $controller->editarMaterial($id, $descricao, $unidade_medida, $quantidade, $deposito, $estoque_minimo, $estoque_seguranca, $tipo_material, $segmento);
             break;
-            case 'listarUnidadesDeMedida':
-                $controller->listarUnidadesDeMedida();
-                break;
-            
+
+        case 'listarUnidadesDeMedida':
+            $controller->listarUnidadesDeMedida();
+            break;
+
+        case 'listarTiposDeMaterial':
+            $controller->listarTiposDeMaterial();
+            break;
 
         default:
             http_response_code(400);

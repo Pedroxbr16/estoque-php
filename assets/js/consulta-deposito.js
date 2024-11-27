@@ -129,7 +129,6 @@ document.addEventListener('DOMContentLoaded', function () {
             button.addEventListener('click', function () {
                 const id = this.getAttribute('data-id');
                 // Aqui você pode redirecionar para uma página de edição ou abrir um modal para editar os dados
-                // Exemplo de redirecionamento:
                 window.location.href = `/estoque-php/front/editar-pdt.php?id=${id}`;
             });
         });
@@ -149,8 +148,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 tipoMaterialSelect.innerHTML = '<option value="">Todos</option>';
                 data.forEach(tipo => {
                     const option = document.createElement('option');
-                    option.value = tipo.tipo_material;
-                    option.textContent = tipo.tipo_material;
+                    option.value = tipo.descricao;
+                    option.textContent = tipo.descricao;
                     tipoMaterialSelect.appendChild(option);
                 });
             })
@@ -162,59 +161,15 @@ document.addEventListener('DOMContentLoaded', function () {
                 segmentoSelect.innerHTML = '<option value="">Todos</option>';
                 data.forEach(segmento => {
                     const option = document.createElement('option');
-                    option.value = segmento.segmento;
-                    option.textContent = segmento.segmento;
+                    option.value = segmento.descricao;
+                    option.textContent = segmento.descricao;
                     segmentoSelect.appendChild(option);
                 });
             })
             .catch(error => console.error('Erro ao carregar segmentos:', error));
     }
 
-    function exportToPDF() {
-        const {
-            jsPDF
-        } = window.jspdf;
-        const doc = new jsPDF();
-
-        // Adicionando título ao PDF
-        doc.setFontSize(18);
-        doc.text("Relatório de Estoque", 14, 20);
-
-        // Adicionando tabela ao PDF
-        let rows = [];
-        const table = document.getElementById("relatorioTable");
-        for (let i = 1; i < table.rows.length; i++) {
-            let row = [];
-            for (let j = 0; j < table.rows[i].cells.length; j++) {
-                row.push(table.rows[i].cells[j].innerText);
-            }
-            rows.push(row);
-        }
-
-        // Configuração de largura das colunas
-        const columnWidths = [35, 25, 20, 30, 25, 30, 30, 30];
-        doc.autoTable({
-            head: [
-                ["Descrição", "Unidade de Medida", "Quantidade", "Depósito", "Estoque Mínimo", "Estoque de Segurança", "Tipo de Material", "Segmento"]
-            ],
-            body: rows,
-            startY: 30,
-            columnStyles: {
-                0: {
-                    cellWidth: columnWidths[0]
-                }
-            },
-        });
-
-        // Salva o PDF
-        doc.save("Relatorio_Estoque.pdf");
-    }
-
- 
-    
-
     // Carregar os dados iniciais
     carregarFiltros();
     carregarMateriais();
-
 });

@@ -14,11 +14,11 @@ $(document).ready(function () {
                     tabela += `
                         <tr>
                             <td>${usuario.id_usuario}</td>
-                            <td>${usuario.nome}</td>
+                            <td>${usuario.nome} ${usuario.sobrenome}</td>
                             <td>${usuario.email}</td>
-                            <td>${usuario.funcao}</td>
+                            <td>${usuario.funcao_nome ? usuario.funcao_nome : 'Função não definida'}</td>
                             <td>
-                                <button class="btn btn-warning btn-sm" onclick="abrirModalEditar(${usuario.id_usuario}, '${usuario.nome}', '${usuario.sobrenome}', '${usuario.funcao}', '${usuario.email}')">Editar</button>
+                                <button class="btn btn-warning btn-sm" onclick="abrirModalEditar(${usuario.id_usuario}, '${usuario.nome}', '${usuario.sobrenome}', ${usuario.funcao_id}, '${usuario.email}')">Editar</button>
                                 <button class="btn btn-danger btn-sm" onclick="confirmarExcluir(${usuario.id_usuario})">Excluir</button>
                             </td>
                         </tr>`;
@@ -40,7 +40,7 @@ $(document).ready(function () {
                 const funcoes = JSON.parse(data);
                 let opcoes = '';
                 funcoes.forEach(funcao => {
-                    opcoes += `<option value="${funcao.funcao}">${funcao.funcao}</option>`;
+                    opcoes += `<option value="${funcao.id}">${funcao.nome}</option>`;
                 });
                 $('#editFuncao').html(opcoes);
             },
@@ -106,11 +106,11 @@ $(document).ready(function () {
     }
 
     // Abrir o modal de edição com os dados preenchidos
-    window.abrirModalEditar = function (id, nome, sobrenome, funcao, email) {
+    window.abrirModalEditar = function (id, nome, sobrenome, funcao_id, email) {
         $('#editId').val(id);
         $('#editNome').val(nome);
         $('#editSobrenome').val(sobrenome);
-        $('#editFuncao').val(funcao);
+        $('#editFuncao').val(funcao_id);  // Agora usamos funcao_id
         $('#editEmail').val(email);
         $('#editModal').modal('show');
     }
@@ -122,7 +122,7 @@ $(document).ready(function () {
         const id = $('#editId').val();
         const nome = $('#editNome').val();
         const sobrenome = $('#editSobrenome').val();
-        const funcao = $('#editFuncao').val();
+        const funcao_id = $('#editFuncao').val();  // Agora usamos funcao_id
         const email = $('#editEmail').val();
 
         $.ajax({
@@ -133,7 +133,7 @@ $(document).ready(function () {
                 id: id,
                 nome: nome,
                 sobrenome: sobrenome,
-                funcao: funcao,
+                funcao_id: funcao_id,  // Usamos funcao_id ao enviar
                 email: email
             },
             success: function () {

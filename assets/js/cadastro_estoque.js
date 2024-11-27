@@ -1,91 +1,58 @@
-document.getElementById('deposito').addEventListener('input', function () {
-    const query = this.value;
-    const sugestoesList = document.getElementById('sugestoesDeposito');
+$(document).ready(function () {
+    // Função para carregar categorias dinâmicas
+    function carregarCategorias(categoria, selectElementId) {
+        $.ajax({
+            url: "../back/controller/estoqueedit.php",
+            type: "GET",
+            data: {
+                action: 'listar',
+                categoria: categoria
+            },
+            success: function (response) {
+                try {
+                    response = typeof response === "string" ? JSON.parse(response) : response;
+                } catch (e) {
+                    Swal.fire("Erro!", "Resposta inesperada do servidor.", "error");
+                    return;
+                }
 
-    // Limpa sugestões anteriores
-    sugestoesList.innerHTML = '';
+                if (response.status === "success") {
+                    let selectElement = $(`#${selectElementId}`);
+                    selectElement.empty(); // Limpar as opções existentes
+                    selectElement.append(`<option value="">Selecione...</option>`); // Adicionar opção padrão
 
-    if (query.length >= 2) {
-        fetch(`../back/depositoController.php?query=${query}`)
-            .then(response => response.json())
-            .then(data => {
-                data.forEach(item => {
-                    const li = document.createElement('li');
-                    li.classList.add('list-group-item', 'list-group-item-action');
-                    li.textContent = item.deposito;
-
-                    li.addEventListener('click', function () {
-                        document.getElementById('deposito').value = this.textContent;
-                        sugestoesList.innerHTML = '';
+                    // Preencher as opções com os dados recebidos
+                    response.data.forEach(function (item) {
+                        selectElement.append(`<option value="${item.descricao}">${item.descricao}</option>`);
                     });
-
-                    sugestoesList.appendChild(li);
-                });
-            })
-            .catch(error => console.error('Erro ao buscar depósitos:', error));
+                } else {
+                    Swal.fire("Erro!", response.message, "error");
+                }
+            },
+            error: function () {
+                Swal.fire("Erro!", "Erro ao carregar categorias.", "error");
+            },
+        });
     }
-});
 
+    // Carregar categorias ao abrir a página
+    const categorias = [
+        { categoria: 'unidade_medida', elemento: 'unidade_medida' },
+        { categoria: 'deposito', elemento: 'deposito' },
+        { categoria: 'tipo_material', elemento: 'tipo_material' },
+        { categoria: 'segmento', elemento: 'segmento' }
+    ];
 
-// Função para preencher o campo "Tipo de Material"
-fetch('http://localhost/estoque-php/back/routes/getTiposMaterial.php')
-    .then(response => response.json())
-    .then(data => {
-        const tipoMaterialSelect = document.getElementById('tipo_material');
-        tipoMaterialSelect.innerHTML = '<option value="" selected>Selecione...</option>'; // Reseta o campo
+    categorias.forEach(item => {
+        carregarCategorias(item.categoria, item.elemento);
+    });
 
-        data.forEach(item => {
-            const option = document.createElement('option');
-            option.value = item.tipo_material;
-            option.textContent = item.tipo_material;
-            tipoMaterialSelect.appendChild(option);
-        });
-    })
-    .catch(error => console.error('Erro ao carregar os tipos de material:', error));
-
-// Função para preencher o campo "Grupo de Mercadorias"
-fetch('http://localhost/estoque-php/back/routes/getGruposMercadorias.php')
-    .then(response => response.json())
-    .then(data => {
-        const segmentoSelect = document.getElementById('segmento');
-        segmentoSelect.innerHTML = '<option value="" selected>Selecione...</option>'; // Reseta o campo
-
-        data.forEach(item => {
-            const option = document.createElement('option');
-            option.value = item.segmento;
-            option.textContent = item.segmento;
-            segmentoSelect.appendChild(option);
-        });
-    })
-    .catch(error => console.error('Erro ao carregar os grupos de mercadorias:', error));
-
-
-    document.getElementById('descricao').addEventListener('input', function () {
-        const query = this.value;
-        const sugestoesList = document.getElementById('sugestoesDescricao');
-    
-        // Limpa sugestões anteriores
-        sugestoesList.innerHTML = '';
-    
-        if (query.length >= 2) { // Busca após 2 caracteres
-            fetch('http://localhost/estoque-php/back/routes/searchDescricao.php?descricao=${query}')
-                .then(response => response.json())
-                .then(data => {
-                    data.forEach(item => {
-                        const li = document.createElement('li');
-                        li.classList.add('list-group-item', 'list-group-item-action');
-                        li.textContent = item.descricao;
-    
-                        li.addEventListener('click', function () {
-                            document.getElementById('descricao').value = this.textContent;
-                            sugestoesList.innerHTML = ''; // Limpa as sugestões após selecionar
-                        });
-    
-                        sugestoesList.appendChild(li);
-                    });
-                })
-                .catch(error => console.error('Erro ao buscar descrições:', error));
+    // Voltar para a home
+    $(".back-button").on("click", function () {
+        if (homeUrl) {
+            window.location.href = homeUrl;
+        } else {
+            alert("URL da home não encontrada.");
         }
     });
-    
-
+});

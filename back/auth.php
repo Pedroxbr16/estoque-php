@@ -1,8 +1,9 @@
 <?php
+require_once __DIR__ . '/db.php';  // Inclui a conexão com o banco de dados
+
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
-
 
 // Verifique se o usuário está logado
 if (!isset($_SESSION['usuario_id'])) {
@@ -10,33 +11,43 @@ if (!isset($_SESSION['usuario_id'])) {
     exit();
 }
 
-// Defina permissões para cada página
-$permissoes = [
-    'home.php' => ['Estoque', 'Administrador'],
-    'cadastro_estoque.php' => ['Estoque', 'Administrador'],  // Apenas funções "Estoque" e "Administrador" podem acessar
-    'consulta_deposito.php' => ['Estoque', 'Venda', 'Administrador'], // "Estoque", "Venda" e "Administrador" podem acessar
-    'relatorio.php' => ['Administrador','Estoque'],                   // Apenas "Administrador" pode acessar
-    'editar_produto.php' => ['Estoque', 'Administrador'],    // Apenas "Estoque" e "Administrador" podem acessar
-    'emissao_notas.php' => ['Administrador', 'Venda'],  
-    'relatorionf.php' => ['Administrador', 'Venda'],
-    'homeadm.php' => ['Administrador', ],
-    'homeadmEV.php' => ['Administrador', ],
-
-       
-    // Adicione outras páginas e permissões conforme necessário
-];
-
 // Obtenha o nome do arquivo atual
 $paginaAtual = basename($_SERVER['PHP_SELF']);
+$usuarioFuncaoId = $_SESSION['usuario_funcao_id'] ?? '';  // Usar o funcao_id que é um valor inteiro
 
-// Verifique se a página atual tem restrições de função
-if (isset($permissoes[$paginaAtual]) && !in_array($_SESSION['usuario_funcao'], $permissoes[$paginaAtual])) {
-    // Função do usuário não está permitida para acessar esta página
-    header('Location: ../index.php?error=no_permission');
-    session_unset();
-    session_destroy();
+// Carregar permissões do banco de dados
+try {
+    $conn = getConnection();
 
-    exit();
+    // Obter o ID da página atual
+    $stmtPagina = $conn->prepare("SELECT id FROM paginas WHERE nome = :nome");
+    $stmtPagina->bindParam(':nome', $paginaAtual);
+    $stmtPagina->execute();
+    $pagina = $stmtPagina->fetch(PDO::FETCH_ASSOC);
+
+    if (!$pagina) {
+        // Página não encontrada no banco de dados
+        echo "Erro: Página não encontrada no banco de dados!";
+        die();
+    }
+
+    $paginaId = $pagina['id'];
+
+    // Verificar se a função do usuário tem permissão para acessar a página
+    $stmtPermissao = $conn->prepare("SELECT COUNT(*) FROM permissoes_paginas WHERE pagina_id = :pagina_id AND funcao_id = :funcao_id");
+    $stmtPermissao->bindParam(':pagina_id', $paginaId, PDO::PARAM_INT);
+    $stmtPermissao->bindParam(':funcao_id', $usuarioFuncaoId, PDO::PARAM_INT);
+    $stmtPermissao->execute();
+
+    $temPermissao = $stmtPermissao->fetchColumn() > 0;
+
+    if (!$temPermissao) {
+        // Função do usuário não está permitida para acessar esta página
+        echo "Erro: Função do usuário não está permitida para acessar esta página!";
+        echo "<br>Página ID: " . $paginaId;
+        echo "<br>Função ID do Usuário: " . $usuarioFuncaoId;
+        die();
+    }
+} catch (PDOException $e) {
+    die('Erro ao verificar permissões: ' . $e->getMessage());
 }
-
-

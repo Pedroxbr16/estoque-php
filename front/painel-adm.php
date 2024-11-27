@@ -15,8 +15,8 @@
         <p class="text-muted">Selecione uma das opções abaixo para gerenciar as funcionalidades:</p>
         <div class="mt-4">
             <button class="btn btn-primary btn-custom" onclick="navegarPara('usuarios')">Usuários</button>
-            <button class="btn btn-primary btn-custom" onclick="navegarPara('medicos')">Estoque</button>
-            <button class="btn btn-primary btn-custom" onclick="navegarPara('tipos_consulta')">Funções</button>
+            <button class="btn btn-primary btn-custom" onclick="navegarPara('estoque')">Estoque</button>
+            <button class="btn btn-primary btn-custom" onclick="navegarPara('funcao')">Funções</button>
         </div>
     </div>
 
@@ -27,11 +27,11 @@
                 case 'usuarios':
                     window.location.href = 'usuarioedit.php';
                     break;
-                case 'medicos':
-                    window.location.href = 'medicos.php';
+                case 'estoque':
+                    window.location.href = 'estoqueedit.php';
                     break;
-                case 'tipos_consulta':
-                    window.location.href = 'tipos_consulta.php';
+                case 'funcao':
+                    window.location.href = 'funcaoedit.php';
                     break;
             }
         }

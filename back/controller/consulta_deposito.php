@@ -135,7 +135,7 @@ class EstoqueController {
         header('Content-Type: application/json');
         try {
             $conn = getConnection();
-            $sql = "SELECT DISTINCT tipo_material FROM estoque";
+            $sql = "SELECT DISTINCT descricao FROM tipo_material";
             $stmt = $conn->prepare($sql);
             $stmt->execute();
             $tipos = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -152,7 +152,7 @@ class EstoqueController {
         header('Content-Type: application/json');
         try {
             $conn = getConnection();
-            $sql = "SELECT DISTINCT segmento FROM estoque";
+            $sql = "SELECT DISTINCT descricao FROM segmento";
             $stmt = $conn->prepare($sql);
             $stmt->execute();
             $segmentos = $stmt->fetchAll(PDO::FETCH_ASSOC);

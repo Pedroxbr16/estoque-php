@@ -7,34 +7,32 @@
     <title>Administração de Funcionários</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bootstrap-4/bootstrap-4.min.css" rel="stylesheet">
-    <style>
-        .edit-modal {
-            max-width: 500px;
-            margin: auto;
-        }
-
-        .btn-section {
-            margin-bottom: 20px;
-        }
-    </style>
+    <link rel="stylesheet" href="../assets/css/usuarioedit.css">
 </head>
 
 <body>
+
     <div class="container my-5">
-        <h2 class="text-center mb-4">Administração de Funcionários</h2>
-        <div class="btn-section text-end">
-            <button class="btn btn-secondary me-2" onclick="voltar()">Voltar</button>
+             <!-- Botão Voltar -->
+     <div class="mb-3">
+            <a href="/estoque-php/front/painel-adm.php" class="btn btn-secondary">
+                ← Voltar
+            </a>
+        </div>
+        <h2 class="text-center mb-4 fw-bold">Administração de Funcionários</h2>
+        <div class="btn-section">
+            <button class="btn btn-outline-secondary" onclick="voltar()">Voltar</button>
             <button class="btn btn-primary" onclick="cadastrarUsuario()">Cadastrar Novo Usuário</button>
         </div>
-        <div class="table-responsive">
-            <table class="table table-bordered table-hover align-middle">
+        <div class="table-responsive mt-4">
+            <table class="table table-striped table-hover align-middle">
                 <thead class="table-dark">
                     <tr>
                         <th>ID</th>
                         <th>Nome</th>
                         <th>Email</th>
                         <th>Função</th>
-                        <th>Ações</th>
+                        <th class="text-center">Ações</th>
                     </tr>
                 </thead>
                 <tbody id="funcionarios-list">
@@ -46,7 +44,7 @@
 
     <!-- Modal de Edição -->
     <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="editModalLabel">Editar Funcionário</h5>
@@ -57,19 +55,21 @@
                         <input type="hidden" id="editId">
                         <div class="mb-3">
                             <label for="editNome" class="form-label">Nome</label>
-                            <input type="text" class="form-control" id="editNome" required>
+                            <input type="text" class="form-control" id="editNome" placeholder="Digite o nome" required>
                         </div>
                         <div class="mb-3">
                             <label for="editSobrenome" class="form-label">Sobrenome</label>
-                            <input type="text" class="form-control" id="editSobrenome" required>
+                            <input type="text" class="form-control" id="editSobrenome" placeholder="Digite o sobrenome" required>
                         </div>
                         <div class="mb-3">
                             <label for="editFuncao" class="form-label">Função</label>
-                            <select class="form-control" id="editFuncao" required></select>
+                            <select class="form-select" id="editFuncao" required>
+                                <!-- Conteúdo dinâmico -->
+                            </select>
                         </div>
                         <div class="mb-3">
                             <label for="editEmail" class="form-label">Email</label>
-                            <input type="email" class="form-control" id="editEmail" required>
+                            <input type="email" class="form-control" id="editEmail" placeholder="Digite o email" required>
                         </div>
                         <div class="text-end">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
@@ -80,6 +80,10 @@
             </div>
         </div>
     </div>
+
+    <footer>
+        <p>&copy; 2024 Administração de Funcionários. Todos os direitos reservados.</p>
+    </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

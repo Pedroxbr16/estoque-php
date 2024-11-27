@@ -2,7 +2,6 @@
 include_once '../back/auth.php';
 ?>
 
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 
@@ -12,8 +11,6 @@ include_once '../back/auth.php';
     <title>Consulta de Estoque</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-
 </head>
 
 <body>
@@ -22,7 +19,8 @@ include_once '../back/auth.php';
 
         <!-- Botão Voltar para a Home -->
         <div class="text-start mb-3">
-        <button class="back-button">Voltar para Home</button>        </div>
+            <button class="back-button">Voltar para Home</button>
+        </div>
 
         <!-- Formulário de Filtros -->
         <form id="filterForm" class="row g-3 mb-4">
@@ -46,15 +44,15 @@ include_once '../back/auth.php';
             <div class="col-12">
                 <button type="button" id="buscarButton" class="btn btn-primary w-100">Buscar</button>
             </div>
-               <!-- Botão para exportar para PDF -->
-        <div class="text-end mb-3">
-            <button onclick="exportToPDF()" class="btn btn-danger">Exportar para PDF</button>
-        </div>
+            <!-- Botão para exportar para PDF -->
+            <div class="text-end mb-3">
+                <button type="button" id="exportarPDF" class="btn btn-danger">Exportar para PDF</button>
+            </div>
         </form>
 
         <!-- Tabela de Resultados -->
         <div class="table-responsive">
-            <table class="table table-striped table-bordered">
+            <table class="table table-striped table-bordered" id="relatorioTable">
                 <thead class="table-dark">
                     <tr>
                         <th>Descrição</th>
@@ -79,15 +77,12 @@ include_once '../back/auth.php';
 
     </div>
 
-
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="../assets/js/consulta-deposito.js"></script>
     <script>
-    let homeUrl = '<?php echo $_SESSION['homeUrl'] ?? ""; ?>';
-</script>
-<script src="../assets/js/voltar_home.js"></script>
-
+        let homeUrl = '<?php echo $_SESSION['homeUrl'] ?? ""; ?>';
+    </script>
+    <script src="../assets/js/voltar_home.js"></script>
 </body>
 
 </html>

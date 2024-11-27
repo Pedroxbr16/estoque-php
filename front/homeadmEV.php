@@ -77,7 +77,7 @@ require '../back/auth.php'; // Caminho para o arquivo auth.php
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="usuarioDropdown">
                             <li class="dropdown-item-text">
-                                <a href="painel-adm.php"> <?php echo $_SESSION['usuario_funcao']; ?></a>
+                                <a href="painel-adm.php"> <?php echo $_SESSION['usuario_funcao_id']; ?></a>
                             </li>
                             <li>
                                 <hr class="dropdown-divider">
