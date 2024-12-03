@@ -46,7 +46,8 @@ include_once '../back/auth.php';
             </div>
             <!-- Botão para exportar para PDF -->
             <div class="text-end mb-3">
-                <button type="button" id="exportarPDF" class="btn btn-danger">Exportar para PDF</button>
+                <a href="../back/scripts/gerarRelatorioDiario.php"></a>
+                <button type="button" id="exportarPDF" class="btn btn-danger">Gerar Relatório</button>
             </div>
         </form>
 

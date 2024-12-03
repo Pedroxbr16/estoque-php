@@ -56,9 +56,6 @@ switch ($action) {
                 $conn = getConnection();
                 $conn->beginTransaction();
 
-                // Limpar todas as permissões existentes
-                $conn->exec("DELETE FROM permissoes_paginas");
-
                 // Inserir novas permissões
                 $stmtInserir = $conn->prepare("INSERT INTO permissoes_paginas (pagina_id, funcao_id) VALUES (:pagina_id, :funcao_id)");
 

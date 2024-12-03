@@ -16,7 +16,10 @@ class RelatorioVendedor {
     // Listar os vendedores para o dropdown
     public function listarVendedores() {
         try {
-            $sql = "SELECT id_usuario, nome FROM usuarios WHERE funcao = 'Venda'";
+            $sql = "SELECT u.id_usuario, u.nome 
+                    FROM usuarios u 
+                    INNER JOIN funcoes f ON u.funcao_id = f.id 
+                    WHERE f.nome = 'Venda'";
             $stmt = $this->conn->prepare($sql);
             $stmt->execute();
             $vendedores = $stmt->fetchAll(PDO::FETCH_ASSOC);

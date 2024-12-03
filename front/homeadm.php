@@ -67,12 +67,7 @@ require '../back/auth.php'; // Caminho para o arquivo auth.php
                                Vendendor
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="relatorionf.php">
-                                <span data-feather="bar-chart-2"></span>
-                                Relatórios
-                            </a>
-                        </li>
+                      
                         <li class="nav-item">
                             <a class="nav-link" href="homeadmEV.php">
                                 <span data-feather="layers"></span>

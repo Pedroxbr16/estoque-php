@@ -63,11 +63,6 @@
 
     <!-- Inclua o script JavaScript após o conteúdo do corpo -->
     <script src="../assets/js/relatorio_vendedor.js"></script>
-    <script>
-    let homeUrl = '<?php echo $_SESSION['homeUrl'] ?? ""; ?>';
-</script>
-<script src="../assets/js/voltar_home.js"></script>
-
 </body>
 
 </html>

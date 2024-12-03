@@ -61,9 +61,7 @@ require '../back/auth.php'; // Caminho para o arquivo auth.php
                     <li class="nav-item">
                         <a class="nav-link" href="consulta_deposito.php">Consulta de Estoque</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="homeadm.php">Relatórios</a>
-                    </li>
+                  
                     <li class="nav-item">
                         <a class="nav-link" href="emissao_notas.php">Emissão de Notas</a>
                     </li>
@@ -77,7 +75,7 @@ require '../back/auth.php'; // Caminho para o arquivo auth.php
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="usuarioDropdown">
                             <li class="dropdown-item-text">
-                                <a href="painel-adm.php"> <?php echo $_SESSION['usuario_funcao_id']; ?></a>
+                                <a href="painel-adm.php"> <?php echo $_SESSION['usuario_nome']; ?></a>
                             </li>
                             <li>
                                 <hr class="dropdown-divider">

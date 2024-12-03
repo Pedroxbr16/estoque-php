@@ -75,7 +75,8 @@ class Usuario {
                     // Armazena os detalhes do usuário na sessão
                     $_SESSION['usuario_id'] = $usuario['id_usuario'];
                     $_SESSION['usuario_nome'] = $usuario['nome'];
-                    $_SESSION['usuario_funcao_id'] = $usuario['funcao_id']; // Armazena o ID da função
+                    $_SESSION['usuario_funcao_id'] = $usuario['funcao_id']; 
+                    $_SESSION['usuario_funcao'] = $usuario['funcao_id'];// Armazena o ID da função
                     $_SESSION['usuario_funcao_nome'] = $usuario['funcao_nome']; // Armazena o nome da função
 
                     // Definir URL da home com base na função do usuário

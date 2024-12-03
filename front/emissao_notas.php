@@ -2,7 +2,7 @@
 session_start();
 require '../back/auth.php'; // Caminho para o arquivo auth.php
 
-include('../back/db.php');
+
 include_once('../back/estoqueController.php');
 
 // Inicializa o controlador de estoque

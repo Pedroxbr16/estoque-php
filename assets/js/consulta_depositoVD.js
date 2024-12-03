@@ -35,12 +35,16 @@ document.addEventListener('DOMContentLoaded', function () {
                             <td>${material.estoque_seguranca}</td>
                             <td>${material.tipo_material}</td>
                             <td>${material.segmento}</td>
-                        
+                            <td>
+                                <button class="btn btn-primary btn-sm editar-produto" data-id="${material.id}">Editar</button>
+                                <button class="btn btn-danger btn-sm excluir-btn" data-id="${material.id}">Excluir</button>
+                            </td>
                         `;
                         tbody.appendChild(row);
                     });
 
-                   
+                    adicionarEventosExcluir();
+                    adicionarEventosEditar();
                 }
 
                 atualizarPaginacao(data.totalPaginas, data.paginaAtual);
@@ -63,6 +67,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
+
     // Evento para o botão de buscar
     buscarButton.addEventListener('click', () => {
         paginaAtual = 1;
@@ -77,8 +82,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 tipoMaterialSelect.innerHTML = '<option value="">Todos</option>';
                 data.forEach(tipo => {
                     const option = document.createElement('option');
-                    option.value = tipo.tipo_material;
-                    option.textContent = tipo.tipo_material;
+                    option.value = tipo.descricao;
+                    option.textContent = tipo.descricao;
                     tipoMaterialSelect.appendChild(option);
                 });
             })
@@ -90,36 +95,15 @@ document.addEventListener('DOMContentLoaded', function () {
                 segmentoSelect.innerHTML = '<option value="">Todos</option>';
                 data.forEach(segmento => {
                     const option = document.createElement('option');
-                    option.value = segmento.segmento;
-                    option.textContent = segmento.segmento;
+                    option.value = segmento.descricao;
+                    option.textContent = segmento.descricao;
                     segmentoSelect.appendChild(option);
                 });
             })
             .catch(error => console.error('Erro ao carregar segmentos:', error));
     }
 
-   
-
     // Carregar os dados iniciais
     carregarFiltros();
     carregarMateriais();
-
 });
-// Selecionar os cards e o input escondido
-const cards = document.querySelectorAll('.produto-card');
-const inputProdutoId = document.getElementById('produto_id');
-
-// Adicionar evento de clique em cada card
-cards.forEach(card => {
-    card.addEventListener('click', () => {
-        // Remover a seleção anterior
-        cards.forEach(c => c.classList.remove('selecionado'));
-        
-        // Adicionar classe de selecionado no card atual
-        card.classList.add('selecionado');
-        
-        // Atualizar o valor do input oculto com o ID do produto
-        inputProdutoId.value = card.dataset.produtoId;
-    });
-});
-

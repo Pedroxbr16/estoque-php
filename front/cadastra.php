@@ -19,9 +19,7 @@
             <div class="row justify-content-center">
                 <div class="col-md-6">
                     <div class="card p-4">
-                        <div class="text-center">
-                            <img class="img-fluid mx-auto d-block mb-3 w-50 rounded-circle" src="../assets/images/188232663_309321220664657_8260538564518198924_n.jpg" alt="Logo">
-                        </div>
+                     
                         <h1 class="mb-4 text-center">Cadastre-se</h1>
                         <?php
                         // Verificar se há um erro e exibir a mensagem correspondente

@@ -6,7 +6,7 @@ require_once 'db.php';
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
-$usuarioId = $_SESSION['usuarioId'];
+
 
 class EstoqueController {
     public function listarMateriais($pagina = 1, $itensPorPagina = 10) {
