@@ -32,10 +32,12 @@
 </head>
 
 <body>
+
+<?php include 'navbar.php'; ?> <!-- Aqui você inclui o menu lateral -->
     <div class="container">
         <!-- Botão Voltar -->
         <div class="mb-3">
-            <a href="/estoque-php/front/painel-adm.php" class="btn btn-secondary">
+            <a href="painel-adm.php" class="btn btn-secondary">
                 ← Voltar
             </a>
         </div>
@@ -45,11 +47,8 @@
                 <h3 class="card-title">Gerenciar Funções e Páginas</h3>
                 <p class="card-text">Selecione uma das opções abaixo para gerenciar as funcionalidades:</p>
                 <button class="btn btn-primary m-2" id="gerenciarFuncoesBtn">Gerenciar Funções</button>
-                <a href="gerenciar_paginas.php">
-                    <button class="btn btn-primary m-2">Gerenciar Páginas</button>
-                </a>
-                <button class="btn btn-primary m-2">Autorização da Função</button>
-                </a>
+
+                <a href="autorizacao_funcao.php"> <button class="btn btn-primary m-2">Autorização da Função</button> </a>
             </div>
         </div>
     </div>

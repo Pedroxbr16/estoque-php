@@ -5,52 +5,72 @@ document.addEventListener('DOMContentLoaded', function () {
     const segmentoSelect = document.getElementById('segmento');
     const tbody = document.getElementById('resultTable');
     const pagination = document.getElementById('pagination');
-  
+
     let paginaAtual = 1;
-
-    // Função para carregar materiais com filtros e paginação
-    function carregarMateriais(pagina = 1) {
-        const descricao = descricaoInput.value;
-        const tipo_material = tipoMaterialSelect.value;
-        const segmento = segmentoSelect.value;
-
-        const url = `../back/controller/consulta_deposito.php?action=listar&descricao=${encodeURIComponent(descricao)}&tipo_material=${encodeURIComponent(tipo_material)}&segmento=${encodeURIComponent(segmento)}&pagina=${pagina}`;
-
-        fetch(url)
-            .then(response => response.json())
-            .then(data => {
-                tbody.innerHTML = '';
-
-                if (data.materiais.length === 0) {
-                    tbody.innerHTML = "<tr><td colspan='9' class='text-center'>Nenhum material encontrado.</td></tr>";
-                } else {
-                    data.materiais.forEach(material => {
-                        const row = document.createElement('tr');
-                        row.innerHTML = `
-                            <td>${material.descricao}</td>
-                            <td>${material.unidade_medida}</td>
-                            <td>${material.quantidade}</td>
-                            <td>${material.deposito}</td>
-                            <td>${material.estoque_minimo}</td>
-                            <td>${material.estoque_seguranca}</td>
-                            <td>${material.tipo_material}</td>
-                            <td>${material.segmento}</td>
-                            <td>
-                                <button class="btn btn-primary btn-sm editar-produto" data-id="${material.id}">Editar</button>
-                                <button class="btn btn-danger btn-sm excluir-btn" data-id="${material.id}">Excluir</button>
-                            </td>
-                        `;
-                        tbody.appendChild(row);
-                    });
-
-                    adicionarEventosExcluir();
-                    adicionarEventosEditar();
-                }
-
-                atualizarPaginacao(data.totalPaginas, data.paginaAtual);
-            })
-            .catch(error => console.error('Erro ao carregar materiais:', error));
+    function carregarFontAwesome(callback) {
+        const script = document.createElement('script');
+        script.src = "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js";
+        script.defer = true;
+        script.onload = callback;
+        document.head.appendChild(script);
     }
+    // Função para carregar materiais com filtros e paginação
+   function carregarMateriais(pagina = 1) {
+    const descricao = descricaoInput.value;
+    const tipo_material = tipoMaterialSelect.value;
+    const segmento = segmentoSelect.value;
+
+    const url = `../back/controller/consulta_deposito.php?action=listar&descricao=${encodeURIComponent(descricao)}&tipo_material=${encodeURIComponent(tipo_material)}&segmento=${encodeURIComponent(segmento)}&pagina=${pagina}`;
+
+    fetch(url)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Erro ao carregar materiais: ' + response.statusText);
+            }
+            return response.json();
+        })
+        .then(data => {
+            tbody.innerHTML = '';
+
+            if (!data || !data.materiais || data.materiais.length === 0) {
+                tbody.innerHTML = "<tr><td colspan='9' class='text-center'>Nenhum material encontrado.</td></tr>";
+            } else {
+                data.materiais.forEach(material => {
+                    carregarFontAwesome();
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${material.descricao}</td>
+                        <td>${material.unidade_medida}</td>
+                        <td>${material.quantidade}</td>
+                        <td>${material.deposito}</td>
+                        <td>${material.estoque_minimo}</td>
+                        <td>${material.estoque_seguranca}</td>
+                        <td>${material.tipo_material}</td>
+                        <td>${material.segmento}</td>
+                        <td class="text-center">
+                            <button class="btn btn-edit btn-sm me-2" data-id="${material.id}" title="Editar">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-delete btn-sm" data-id="${material.id}" title="Excluir">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+
+                adicionarEventosExcluir();
+                adicionarEventosEditar();
+            }
+
+            atualizarPaginacao(data.totalPaginas, data.paginaAtual);
+        })
+        .catch(error => {
+            console.error('Erro ao carregar materiais:', error);
+            tbody.innerHTML = "<tr><td colspan='9' class='text-center text-danger'>Erro ao carregar materiais. Por favor, tente novamente.</td></tr>";
+        });
+}
+
 
     // Atualizar paginação
     function atualizarPaginacao(totalPaginas, paginaAtual) {
@@ -69,7 +89,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Adicionar evento para excluir material
     function adicionarEventosExcluir() {
-        document.querySelectorAll('.excluir-btn').forEach(button => {
+        document.querySelectorAll('.btn-delete').forEach(button => {
             button.addEventListener('click', function () {
                 const id = this.getAttribute('data-id');
                 Swal.fire({
@@ -125,11 +145,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Adicionar evento para editar material
     function adicionarEventosEditar() {
-        document.querySelectorAll('.editar-produto').forEach(button => {
+        document.querySelectorAll('.btn-edit').forEach(button => {
             button.addEventListener('click', function () {
                 const id = this.getAttribute('data-id');
-                // Aqui você pode redirecionar para uma página de edição ou abrir um modal para editar os dados
-                window.location.href = `/estoque-php/front/editar-pdt.php?id=${id}`;
+                window.location.href = `/estoque-clinica/front/editar-pdt.php?id=${id}`;
             });
         });
     }

@@ -8,12 +8,12 @@ class ListaUsuarios {
         $conn = getConnection();
         if ($conn) {
             try {
-                $sql = "SELECT u.id_usuario, u.nome, u.sobrenome, u.email, f.nome AS funcao_nome 
+                $sql = "SELECT u.id_usuario, u.nome, u.sobrenome, u.email, u.funcao_id, f.nome AS funcao_nome 
                         FROM usuarios u 
                         LEFT JOIN funcoes f ON u.funcao_id = f.id";
                 $stmt = $conn->prepare($sql);
                 $stmt->execute();
-
+    
                 $usuarios = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 return $usuarios;
             } catch (PDOException $e) {
@@ -23,6 +23,7 @@ class ListaUsuarios {
             echo "Erro ao conectar ao banco de dados.";
         }
     }
+    
 }
 
 class EditarUsuario {

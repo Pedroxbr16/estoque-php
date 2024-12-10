@@ -35,10 +35,7 @@ document.addEventListener('DOMContentLoaded', function () {
                             <td>${material.estoque_seguranca}</td>
                             <td>${material.tipo_material}</td>
                             <td>${material.segmento}</td>
-                            <td>
-                                <button class="btn btn-primary btn-sm editar-produto" data-id="${material.id}">Editar</button>
-                                <button class="btn btn-danger btn-sm excluir-btn" data-id="${material.id}">Excluir</button>
-                            </td>
+                           
                         `;
                         tbody.appendChild(row);
                     });

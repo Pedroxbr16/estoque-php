@@ -30,7 +30,7 @@ class Usuario {
                 $stmt->bindParam(':password', $password);
                 $stmt->execute();
 
-                header('Location: ../index.php');
+                header('Location: ../front/usuarioedit.php');
                 exit();
             } catch (PDOException $e) {
                 echo "Erro ao inserir dados: " . $e->getMessage();
@@ -75,6 +75,9 @@ class Usuario {
                     // Armazena os detalhes do usuário na sessão
                     $_SESSION['usuario_id'] = $usuario['id_usuario'];
                     $_SESSION['usuario_nome'] = $usuario['nome'];
+                    $_SESSION['usuario_sobrenome'] = $usuario['sobrenome'];
+                    $_SESSION['usuario_senha'] = $usuario['password'];
+                    $_SESSION['usuario_email'] = $usuario['email'];
                     $_SESSION['usuario_funcao_id'] = $usuario['funcao_id']; 
                     $_SESSION['usuario_funcao'] = $usuario['funcao_id'];// Armazena o ID da função
                     $_SESSION['usuario_funcao_nome'] = $usuario['funcao_nome']; // Armazena o nome da função

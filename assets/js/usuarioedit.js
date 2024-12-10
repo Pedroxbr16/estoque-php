@@ -106,14 +106,20 @@ $(document).ready(function () {
     }
 
     // Abrir o modal de edição com os dados preenchidos
-    window.abrirModalEditar = function (id, nome, sobrenome, funcao_id, email) {
-        $('#editId').val(id);
-        $('#editNome').val(nome);
-        $('#editSobrenome').val(sobrenome);
-        $('#editFuncao').val(funcao_id);  // Agora usamos funcao_id
-        $('#editEmail').val(email);
-        $('#editModal').modal('show');
-    }
+    // Abrir o modal de edição com os dados preenchidos
+window.abrirModalEditar = function (id, nome, sobrenome, funcao_id, email) {
+    $('#editId').val(id);
+    $('#editNome').val(nome);
+    $('#editSobrenome').val(sobrenome);
+    $('#editFuncao').val(funcao_id);  // Certifique-se de que o valor funcao_id está sendo atribuído corretamente
+    $('#editEmail').val(email);
+    $('#editModal').modal('show');
+    
+    // Atualizar o select de funções para garantir que a função do usuário esteja selecionada
+    setTimeout(() => {
+        $('#editFuncao').val(funcao_id);
+    }, 100);  // Utiliza um pequeno delay para garantir que o valor seja selecionado depois do carregamento
+}
 
     // Submeter edição de funcionário
     $('#editForm').submit(function (e) {

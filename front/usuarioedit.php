@@ -11,11 +11,12 @@
 </head>
 
 <body>
+<?php include 'navbar.php'; ?> <!-- Aqui você inclui o menu lateral -->
 
     <div class="container my-5">
              <!-- Botão Voltar -->
      <div class="mb-3">
-            <a href="/estoque-php/front/painel-adm.php" class="btn btn-secondary">
+            <a href="painel-adm.php" class="btn btn-secondary">
                 ← Voltar
             </a>
         </div>
@@ -63,7 +64,7 @@
                         </div>
                         <div class="mb-3">
                             <label for="editFuncao" class="form-label">Função</label>
-                            <select class="form-select" id="editFuncao" required>
+                            <select id="editFuncao" name="funcao_id" class="form-select" required>
                                 <!-- Conteúdo dinâmico -->
                             </select>
                         </div>

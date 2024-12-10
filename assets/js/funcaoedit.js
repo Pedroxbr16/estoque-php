@@ -6,9 +6,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const paginasTableBody = document.getElementById('paginasTableBody');
     const adicionarFuncaoBtn = document.getElementById('adicionarFuncaoBtn');
     const adicionarPaginaBtn = document.getElementById('adicionarPaginaBtn');
-    const editarFuncaoForm = document.getElementById('editarFuncaoForm');
-    const adicionarFuncaoForm = document.getElementById('adicionarFuncaoForm');
-
+    
     // Utilitário para mostrar modal
     function mostrarModal(modalId) {
         const modalElement = document.getElementById(modalId);
@@ -33,7 +31,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Função para abrir o modal de Gerenciar Funções
     if (gerenciarFuncoesBtn) {
-        gerenciarFuncoesBtn.addEventListener('click', function () {
+        gerenciarFuncoesBtn.addEventListener('click', function (event) {
+            event.preventDefault(); // Evita redirecionamento indesejado
             mostrarModal('modalGerenciarFuncoes');
             carregarFuncoes();
         });
@@ -41,7 +40,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Função para abrir o modal de Gerenciar Páginas
     if (gerenciarPaginasBtn) {
-        gerenciarPaginasBtn.addEventListener('click', function () {
+        gerenciarPaginasBtn.addEventListener('click', function (event) {
+            event.preventDefault(); // Evita redirecionamento indesejado
             mostrarModal('modalGerenciarPaginas');
             carregarPaginas();
         });
@@ -113,14 +113,16 @@ document.addEventListener('DOMContentLoaded', function () {
     // Função para adicionar os eventos aos botões de editar e excluir para funções
     function adicionarEventosAosBotoesFuncoes() {
         document.querySelectorAll('.editar-funcao').forEach(button => {
-            button.addEventListener('click', function () {
+            button.addEventListener('click', function (event) {
+                event.preventDefault(); // Evita redirecionamento indesejado
                 const id = this.getAttribute('data-id');
                 buscarFuncaoPorId(id);
             });
         });
 
         document.querySelectorAll('.excluir-funcao').forEach(button => {
-            button.addEventListener('click', function () {
+            button.addEventListener('click', function (event) {
+                event.preventDefault(); // Evita redirecionamento indesejado
                 const id = this.getAttribute('data-id');
                 excluirFuncao(id);
             });
@@ -130,14 +132,16 @@ document.addEventListener('DOMContentLoaded', function () {
     // Função para adicionar os eventos aos botões de editar e excluir para páginas
     function adicionarEventosAosBotoesPaginas() {
         document.querySelectorAll('.editar-pagina').forEach(button => {
-            button.addEventListener('click', function () {
+            button.addEventListener('click', function (event) {
+                event.preventDefault(); // Evita redirecionamento indesejado
                 const id = this.getAttribute('data-id');
                 buscarPaginaPorId(id);
             });
         });
 
         document.querySelectorAll('.excluir-pagina').forEach(button => {
-            button.addEventListener('click', function () {
+            button.addEventListener('click', function (event) {
+                event.preventDefault(); // Evita redirecionamento indesejado
                 const id = this.getAttribute('data-id');
                 excluirPagina(id);
             });
@@ -162,6 +166,8 @@ document.addEventListener('DOMContentLoaded', function () {
                         mostrarModal('modalEditarFuncao');
                     } else {
                         console.error('Elementos do formulário de edição não encontrados.');
+                        console.log('Verifique se o modal de edição está presente no DOM e se os IDs dos elementos estão corretos.');
+                        Swal.fire('Erro!', 'Elementos do formulário de edição não encontrados.', 'error');
                     }
                 } else {
                     Swal.fire('Erro!', 'Função não encontrada.', 'error');
@@ -253,7 +259,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Evento para o botão de adicionar página
     if (adicionarPaginaBtn) {
-        adicionarPaginaBtn.addEventListener('click', function () {
+        adicionarPaginaBtn.addEventListener('click', function (event) {
+            event.preventDefault(); // Evita redirecionamento indesejado
             const nomePagina = prompt('Digite o nome da nova página:');
             if (nomePagina) {
                 fetch('../back/controller/paginaedit.php?action=criar', {

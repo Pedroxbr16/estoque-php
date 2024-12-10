@@ -2,6 +2,7 @@
 
 <?php
 session_start();
+
 require '../back/auth.php'; // Caminho para o arquivo auth.php
 
 include('../back/db.php');
@@ -9,14 +10,25 @@ include_once('../back/estoqueController.php');
 
 // Inicializa o controlador de estoque
 $estoqueController = new EstoqueController();
-$produtos = $estoqueController->buscarMateriais();
 
+// Obtém o ID do material a partir da URL
+$id = $_GET['id'] ?? null;
+
+if ($id) {
+    $material = $estoqueController->buscarMaterialPorId($id);
+    if (!$material) {
+        echo "Erro: Material não encontrado.";
+        exit;
+    }
+} else {
+    echo "Erro: ID do material não fornecido.";
+    exit;
+}
 ?>
+
 <!DOCTYPE html>
 <html lang="pt-BR">
-<script>
-    let homeUrl = '<?php echo $_SESSION['homeUrl'] ?? ""; ?>';
-</script>
+
 
 <head>
     <meta charset="UTF-8">
@@ -28,7 +40,11 @@ $produtos = $estoqueController->buscarMateriais();
 
 <body>
     <div class="container mt-5">
-    <button class="back-button">Voltar para Home</button>
+    <div class="mb-3">
+            <a href="consulta_deposito.php" class="btn btn-secondary">
+                ← Voltar
+            </a>
+        </div>
         <h1 class="text-center mb-4">Editar Produto</h1>
 
         <!-- Formulário de Edição -->

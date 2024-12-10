@@ -16,11 +16,19 @@ $(document).ready(function () {
       success: function (response) {
         console.log("Resposta do servidor:", response);
 
-        // Acessando os dados da resposta
-        const data = response.data;
+        try {
+          response = typeof response === "string" ? JSON.parse(response) : response;
+        } catch (e) {
+          Swal.fire("Erro!", "Resposta inesperada do servidor ao listar categorias.", "error");
+          return;
+        }
 
-        // Criar o conteúdo do modal com a tabela de itens
-        let conteudoModal = `
+        if (response.status === "success") {
+          // Acessando os dados da resposta
+          const data = response.data;
+
+          // Criar o conteúdo do modal com a tabela de itens
+          let conteudoModal = `
                     <table class="table table-bordered table-hover align-middle">
                         <thead class="table-dark">
                             <tr>
@@ -30,9 +38,9 @@ $(document).ready(function () {
                         </thead>
                         <tbody>`;
 
-        // Iterar pelos itens e adicioná-los à tabela
-        data.forEach((item) => {
-          conteudoModal += `
+          // Iterar pelos itens e adicioná-los à tabela
+          data.forEach((item) => {
+            conteudoModal += `
                         <tr>
                             <td>${item.descricao}</td>
                             <td>
@@ -40,13 +48,16 @@ $(document).ready(function () {
                                 <button class="btn btn-danger btn-sm" onclick="confirmarExcluir(${item.id}, '${categoria}')">Excluir</button>
                             </td>
                         </tr>`;
-        });
+          });
 
-        conteudoModal += `</tbody></table>`;
-        $("#modalContent").html(conteudoModal);
+          conteudoModal += `</tbody></table>`;
+          $("#modalContent").html(conteudoModal);
 
-        // Exibir o modal de itens
-        $("#manageModal").modal("show");
+          // Exibir o modal de itens
+          $("#manageModal").modal("show");
+        } else {
+          Swal.fire("Erro!", response.message || "Erro ao listar itens.", "error");
+        }
       },
       error: function () {
         Swal.fire("Erro!", "Erro ao carregar os dados.", "error");
@@ -65,48 +76,58 @@ $(document).ready(function () {
     $("#editModal").modal("show");
   };
 
-  // Submeter edição de item
-  $("#editForm").on("submit", function (e) {
-    e.preventDefault();
+ // Submeter edição de item
+$("#editForm").on("submit", function (e) {
+  e.preventDefault();
 
-    const id = $("#editId").val();
-    const descricaoNova = $("#editDescricaoModal").val();
-    const categoria = $("#editCategoria").val();
+  const id = $("#editId").val();
+  const descricaoNova = $("#editDescricaoModal").val();
+  const categoria = $("#editCategoria").val();
 
-    $.ajax({
+  $.ajax({
       url: "../back/controller/estoqueedit.php",
       type: "POST",
       data: {
-        edit: true,
-        id: id,
-        descricaoNova: descricaoNova,
-        categoria: categoria,
+          edit: true,
+          id: id,
+          descricaoNova: descricaoNova,
+          categoria: categoria,
       },
       success: function (response) {
-        try {
-          response = JSON.parse(response);
-        } catch (e) {
-          Swal.fire("Erro!", "Resposta inesperada do servidor.", "error");
-          return;
-        }
+          console.log("Resposta recebida do servidor:", response);
 
-        if (response.status === "success") {
-          Swal.fire(
-            "Atualizado!",
-            "A informação foi atualizada com sucesso.",
-            "success"
-          );
-          $("#editModal").modal("hide");
-          abrirModal(categoria); // Atualizar os dados após editar
-        } else {
-          Swal.fire("Erro!", response.message, "error");
-        }
+          let parsedResponse;
+
+          // Verifica se a resposta já é um objeto ou se é uma string e precisa ser parseada
+          if (typeof response === "string") {
+              try {
+                  parsedResponse = JSON.parse(response);
+              } catch (e) {
+                  Swal.fire("Erro!", "Resposta inesperada do servidor ao editar item.", "error");
+                  return;
+              }
+          } else {
+              parsedResponse = response;
+          }
+
+          if (parsedResponse.status === "success") {
+              Swal.fire(
+                  "Atualizado!",
+                  "A informação foi atualizada com sucesso.",
+                  "success"
+              );
+              $("#editModal").modal("hide");
+              abrirModal(categoria); // Atualizar os dados após editar
+          } else {
+              Swal.fire("Erro!", parsedResponse.message || "Erro ao atualizar o item.", "error");
+          }
       },
       error: function () {
-        Swal.fire("Erro!", "Erro ao atualizar.", "error");
+          Swal.fire("Erro!", "Erro ao atualizar.", "error");
       },
-    });
   });
+});
+
 
   // Função para confirmar exclusão
   window.confirmarExcluir = function (id, categoria) {
@@ -128,7 +149,6 @@ $(document).ready(function () {
 
   // Função para excluir um item
   function excluirItem(id, categoria) {
-    // Fazer a requisição AJAX para o backend
     $.ajax({
       url: "../back/controller/estoqueedit.php",
       type: "POST",
@@ -139,9 +159,7 @@ $(document).ready(function () {
       },
       success: function (response) {
         try {
-          // Garantir que a resposta seja um JSON válido
-          response =
-            typeof response === "string" ? JSON.parse(response) : response;
+          response = typeof response === "string" ? JSON.parse(response) : response;
 
           if (response.status === "success") {
             Swal.fire(
@@ -149,7 +167,6 @@ $(document).ready(function () {
               "O item foi excluído com sucesso.",
               "success"
             ).then(() => {
-              // Fechar o modal e recarregar a lista de itens
               abrirModal(categoria);
             });
           } else {
@@ -162,11 +179,10 @@ $(document).ready(function () {
         } catch (e) {
           console.error("Erro ao analisar resposta do servidor:", e);
           console.log("Resposta recebida:", response);
-          Swal.fire("Erro!", "Resposta inesperada do servidor.", "error");
+        
         }
       },
       error: function (jqXHR, textStatus, errorThrown) {
-        // Erro na requisição AJAX
         console.error("Erro AJAX:", textStatus, errorThrown);
         Swal.fire(
           "Erro!",
@@ -183,7 +199,6 @@ $(document).ready(function () {
 
     const descricao = $("#addDescricaoModal").val();
     const categoria = $("#addCategoria").val();
-    console.log("Dados enviados:", { descricao, categoria });
 
     if (!categoria) {
       Swal.fire(
@@ -203,12 +218,10 @@ $(document).ready(function () {
         categoria: categoria,
       },
       success: function (response) {
-        // Garantir que a resposta seja um objeto JSON válido
         try {
-          response =
-            typeof response === "string" ? JSON.parse(response) : response;
+          response = typeof response === "string" ? JSON.parse(response) : response;
         } catch (e) {
-          Swal.fire("Erro!", "Resposta inesperada do servidor.", "error");
+          Swal.fire("Erro!", "Resposta inesperada do servidor ao adicionar item.", "error");
           return;
         }
 
@@ -219,9 +232,9 @@ $(document).ready(function () {
             "success"
           );
           $("#addModal").modal("hide");
-          abrirModal(categoria); // Atualizar os dados após adicionar
+          abrirModal(categoria);
         } else {
-          Swal.fire("Erro!", response.message, "error");
+          Swal.fire("Erro!", response.message || "Erro ao adicionar o item.", "error");
         }
       },
       error: function () {
