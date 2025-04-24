@@ -37,7 +37,9 @@ Sistema web para controle de estoque, com funcionalidades de cadastro, edição,
 
 ## 📸 Imagem do Projeto
 
-<img src="assets/img/estoque-preview.jpg" alt="Preview do sistema" width="600"/>
+<img src="assets/img/estoque.jpg" alt="Preview do sistema" width="600"/>
+<img src="assets/img/estoque2.jpg" alt="Preview do sistema" width="600"/>
+<img src="assets/img/estoque3.jpg" alt="Preview do sistema" width="600"/>
 
 ## 📌 Status
 
