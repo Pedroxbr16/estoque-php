@@ -43,9 +43,11 @@ Sistema web para controle de estoque, com funcionalidades de cadastro, edição,
 
 🚧 Em desenvolvimento.
 
-## 🧑‍💻 Autor
+## 🧑‍💻 Autores
 
 **Pedro Justo**  
 🔗 [GitHub](https://github.com/Pedroxbr16)
+
+
 **Eduardo Fernando**  
 🔗 [GitHub](https://github.com/Eduardo-Alves20)
