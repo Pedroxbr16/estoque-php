@@ -10,33 +10,38 @@ services:
       - .:/var/www/html
     depends_on:
       - db
-    restart: unless-stopped
+    environment:
+      DB_HOST: db
+      DB_USER: estoque_user
+      DB_PASSWORD: estoque_pass
+      DB_NAME: estoque
 
   db:
     image: mysql:5.7
     container_name: estoque_mysql
-    restart: unless-stopped
+    restart: always
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: estoque
       MYSQL_USER: estoque_user
       MYSQL_PASSWORD: estoque_pass
     ports:
-      - "3307:3306"
+      - "3306:3306"
     volumes:
-      - db_data:/var/lib/mysql
+      - mysql_data:/var/lib/mysql
 
   phpmyadmin:
-    image: phpmyadmin/phpmyadmin
+    image: phpmyadmin/phpmyadmin:latest
     container_name: estoque_phpmyadmin
-    restart: unless-stopped
-    ports:
-      - "8081:80"
+    restart: always
+    depends_on:
+      - db
     environment:
       PMA_HOST: db
       MYSQL_ROOT_PASSWORD: root
-    depends_on:
-      - db
+      PMA_ABSOLUTE_URI: http://localhost:8081/
+    ports:
+      - "8081:80"
 
 volumes:
-  db_data:
+  mysql_data:

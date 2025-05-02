@@ -3,9 +3,9 @@
 // Função para retornar a conexão ao banco de dados
 if (!function_exists('getConnection')) {
     function getConnection() {
-        $servername = "localhost";
-        $username = "root";
-        $password = ""; // Atualize com a senha correta se necessário
+        $servername = "db";
+        $username = "estoque_user";
+        $password = "estoque_pass"; // Atualize com a senha correta se necessário
         $dbname = "estoque";
 
         try {
